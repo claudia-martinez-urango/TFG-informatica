@@ -10,6 +10,8 @@ import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import UpdatePasswordPage from "../pages/UpdatePasswordPage";
 import StudentDashboardPage from "../pages/StudentDashboardPage";
 import TeacherDashboardPage from "../pages/TeacherDashboardPage";
+import TeacherFoldersPage from "../pages/TeacherFoldersPage";
+import JoinFolderPage from "../pages/JoinFolderPage";
 
 function AppRouter() {
   return (
@@ -37,6 +39,33 @@ function AppRouter() {
           element={
             <ProtectedRoute allowedRole="teacher">
               <TeacherDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/teacher/folders"
+          element={
+            <ProtectedRoute allowedRole="teacher">
+              <TeacherFoldersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/join"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <JoinFolderPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/join/:joinCode"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <JoinFolderPage />
             </ProtectedRoute>
           }
         />

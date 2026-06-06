@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 function TeacherDashboardPage() {
@@ -12,9 +13,13 @@ function TeacherDashboardPage() {
       </p>
 
       <p>
-        Here the teacher will create courses, upload readings, select vocabulary
+        Here the teacher will create folders, upload readings, select vocabulary
         and monitor student progress.
       </p>
+
+      <Link to="/teacher/folders">
+        <button type="button">Manage folders</button>
+      </Link>
     </main>
   );
 }
