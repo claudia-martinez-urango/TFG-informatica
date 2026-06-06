@@ -13,6 +13,7 @@ import {
 } from "../../api/readingsApi";
 
 import ConfirmModal from "../ui/ConfirmModal";
+import ReadingGlossaryManager from "./ReadingGlossaryManager";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
@@ -29,6 +30,11 @@ function SectionReadingsManager({ sectionId }) {
   const [editingContent, setEditingContent] = useState("");
 
   const [readingToDelete, setReadingToDelete] = useState(null);
+  const [visibleGlossaryReadingId, setVisibleGlossaryReadingId] = useState(null);
+
+  function toggleGlossary(readingId) {
+    setVisibleGlossaryReadingId((prev) => (prev === readingId ? null : readingId));
+  }
 
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -438,12 +444,25 @@ function SectionReadingsManager({ sectionId }) {
 
                       <button
                         type="button"
+                        onClick={() => toggleGlossary(reading.id)}
+                      >
+                        {visibleGlossaryReadingId === reading.id
+                          ? "Hide glossary"
+                          : "Manage glossary"}
+                      </button>
+
+                      <button
+                        type="button"
                         className="danger-button"
                         onClick={() => setReadingToDelete(reading)}
                       >
                         Delete reading
                       </button>
                     </div>
+
+                    {visibleGlossaryReadingId === reading.id && (
+                      <ReadingGlossaryManager readingId={reading.id} />
+                    )}
                   </>
                 )}
               </div>

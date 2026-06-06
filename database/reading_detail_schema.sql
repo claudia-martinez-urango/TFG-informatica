@@ -61,10 +61,8 @@ BEGIN
   IF v_user_role = 'teacher' THEN
     SELECT EXISTS (
       SELECT 1 FROM public.learning_folders lf
-      JOIN public.organizations o ON o.id = lf.organization_id
-      JOIN public.profiles p ON p.organization_id = o.id
       WHERE lf.id = v_folder_id
-        AND p.id = v_user_id
+        AND lf.teacher_id = v_user_id
     ) INTO v_is_owner;
 
     IF NOT v_is_owner THEN
