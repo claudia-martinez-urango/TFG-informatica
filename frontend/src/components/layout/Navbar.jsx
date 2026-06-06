@@ -12,11 +12,11 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <h2>Smart Glossary Assistant</h2>
+      <Link to="/" style={{ textDecoration: "none" }}>
+        <h2>Smart Glossary</h2>
+      </Link>
 
       <div className="navbar-links">
-        <Link to="/">Home</Link>
-
         {!user && (
           <>
             <Link to="/login">Login</Link>
@@ -26,27 +26,27 @@ function Navbar() {
 
         {user && profile?.role === "student" && (
           <>
-            <Link to="/student/dashboard">Student Dashboard</Link>
+            <Link to="/student/dashboard">Dashboard</Link>
             <Link to="/join">Join Folder</Link>
           </>
         )}
 
         {user && profile?.role === "teacher" && (
           <>
-            <Link to="/teacher/dashboard">Teacher Dashboard</Link>
+            <Link to="/teacher/dashboard">Dashboard</Link>
             <Link to="/teacher/folders">Folders</Link>
           </>
         )}
 
         {user && profile && (
           <span className="navbar-user">
-            {profile.first_name} {profile.last_name} ({profile.role})
+            {profile.first_name} {profile.last_name}
           </span>
         )}
 
         {user && (
           <button type="button" className="logout-button" onClick={handleLogout}>
-            Logout
+            Log out
           </button>
         )}
       </div>

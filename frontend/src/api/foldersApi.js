@@ -1,5 +1,8 @@
 import { supabase } from "../auth/supabaseClient";
 
+const FOLDER_SELECT =
+  "id, name, description, join_code, created_at, organization_id, teacher_id, is_visible_to_students";
+
 function generateJoinCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
@@ -53,9 +56,7 @@ export async function updateOrganization({ organizationId, name }) {
 export async function getTeacherFolders(teacherId) {
   const { data, error } = await supabase
     .from("learning_folders")
-    .select(
-      "id, name, description, join_code, created_at, organization_id, teacher_id"
-    )
+    .select(FOLDER_SELECT)
     .eq("teacher_id", teacherId)
     .order("created_at", { ascending: false });
 
@@ -86,9 +87,7 @@ export async function createLearningFolder({
         description,
         join_code: joinCode,
       })
-      .select(
-        "id, name, description, join_code, created_at, organization_id, teacher_id"
-      )
+      .select(FOLDER_SELECT)
       .single();
 
     if (!error) {
@@ -108,14 +107,24 @@ export async function createLearningFolder({
 export async function updateLearningFolder({ folderId, name, description }) {
   const { data, error } = await supabase
     .from("learning_folders")
-    .update({
-      name,
-      description,
-    })
+    .update({ name, description })
     .eq("id", folderId)
-    .select(
-      "id, name, description, join_code, created_at, organization_id, teacher_id"
-    )
+    .select(FOLDER_SELECT)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function updateFolderVisibility({ folderId, isVisibleToStudents }) {
+  const { data, error } = await supabase
+    .from("learning_folders")
+    .update({ is_visible_to_students: isVisibleToStudents })
+    .eq("id", folderId)
+    .select(FOLDER_SELECT)
     .single();
 
   if (error) {

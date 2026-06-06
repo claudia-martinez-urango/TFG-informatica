@@ -12,6 +12,7 @@ import {
   getTeacherOrganization,
   rejectFolderJoinRequest,
   removeStudentFromFolder,
+  updateFolderVisibility,
   updateLearningFolder,
   updateOrganization,
 } from "../api/foldersApi";
@@ -22,6 +23,8 @@ function TeacherFoldersPage() {
 
   const [organization, setOrganization] = useState(null);
   const [folders, setFolders] = useState([]);
+
+  const [expandedFolders, setExpandedFolders] = useState(new Set());
 
   const [selectedFolderStudents, setSelectedFolderStudents] = useState({});
   const [visibleStudentsFolderId, setVisibleStudentsFolderId] = useState(null);
@@ -38,6 +41,8 @@ function TeacherFoldersPage() {
   const [editingFolderId, setEditingFolderId] = useState(null);
   const [editingFolderName, setEditingFolderName] = useState("");
   const [editingFolderDescription, setEditingFolderDescription] = useState("");
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [organizationMessage, setOrganizationMessage] = useState("");
@@ -68,21 +73,31 @@ function TeacherFoldersPage() {
     loadData();
   }, [profile?.id]);
 
+  function clearMessages() {
+    setOrganizationMessage("");
+    setFolderMessage("");
+    setErrorMessage("");
+  }
+
+  function toggleExpanded(folderId) {
+    setExpandedFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(folderId)) {
+        next.delete(folderId);
+      } else {
+        next.add(folderId);
+      }
+      return next;
+    });
+  }
+
   async function handleCreateOrganization(event) {
     event.preventDefault();
-
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
-      const newOrganization = await createOrganization({
-        name: organizationName,
-        teacherId: profile.id,
-      });
-
-      setOrganization(newOrganization);
-      setOrganizationEditName(newOrganization.name);
+      clearMessages();
+      const newOrg = await createOrganization({ name: organizationName, teacherId: profile.id });
+      setOrganization(newOrg);
+      setOrganizationEditName(newOrg.name);
       setOrganizationName("");
       setOrganizationMessage("Organization created successfully.");
     } catch (error) {
@@ -92,20 +107,11 @@ function TeacherFoldersPage() {
 
   async function handleUpdateOrganization(event) {
     event.preventDefault();
-
     if (!organization) return;
-
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
-      const updatedOrganization = await updateOrganization({
-        organizationId: organization.id,
-        name: organizationEditName,
-      });
-
-      setOrganization(updatedOrganization);
+      clearMessages();
+      const updated = await updateOrganization({ organizationId: organization.id, name: organizationEditName });
+      setOrganization(updated);
       setOrganizationMessage("Organization updated successfully.");
     } catch (error) {
       setErrorMessage(error.message);
@@ -114,24 +120,18 @@ function TeacherFoldersPage() {
 
   async function handleCreateFolder(event) {
     event.preventDefault();
-
     if (!organization) {
       setErrorMessage("You need to create an organization first.");
       return;
     }
-
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
+      clearMessages();
       const newFolder = await createLearningFolder({
         organizationId: organization.id,
         teacherId: profile.id,
         name: folderName,
         description: folderDescription,
       });
-
       setFolders([newFolder, ...folders]);
       setFolderName("");
       setFolderDescription("");
@@ -145,6 +145,7 @@ function TeacherFoldersPage() {
     setEditingFolderId(folder.id);
     setEditingFolderName(folder.name);
     setEditingFolderDescription(folder.description || "");
+    setExpandedFolders((prev) => new Set([...prev, folder.id]));
   }
 
   function cancelEditingFolder() {
@@ -155,24 +156,33 @@ function TeacherFoldersPage() {
 
   async function handleUpdateFolder(folderId) {
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
-      const updatedFolder = await updateLearningFolder({
+      clearMessages();
+      const updated = await updateLearningFolder({
         folderId,
         name: editingFolderName,
         description: editingFolderDescription,
       });
-
-      setFolders(
-        folders.map((folder) =>
-          folder.id === folderId ? updatedFolder : folder
-        )
-      );
-
+      setFolders(folders.map((f) => (f.id === folderId ? updated : f)));
       cancelEditingFolder();
       setFolderMessage("Folder updated successfully.");
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  }
+
+  async function handleToggleVisibility(folder) {
+    try {
+      clearMessages();
+      const updated = await updateFolderVisibility({
+        folderId: folder.id,
+        isVisibleToStudents: !folder.is_visible_to_students,
+      });
+      setFolders(folders.map((f) => (f.id === folder.id ? updated : f)));
+      setFolderMessage(
+        updated.is_visible_to_students
+          ? "Folder published. Students can now see it."
+          : "Folder hidden. Students can no longer see it."
+      );
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -182,38 +192,17 @@ function TeacherFoldersPage() {
     const confirmed = window.confirm(
       "Are you sure you want to delete this folder? Students will lose access to it."
     );
-
     if (!confirmed) return;
 
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
+      clearMessages();
       await deleteLearningFolder(folderId);
-
-      setFolders(folders.filter((folder) => folder.id !== folderId));
-
-      setSelectedFolderStudents((currentStudents) => {
-        const copy = { ...currentStudents };
-        delete copy[folderId];
-        return copy;
-      });
-
-      setSelectedFolderRequests((currentRequests) => {
-        const copy = { ...currentRequests };
-        delete copy[folderId];
-        return copy;
-      });
-
-      if (visibleStudentsFolderId === folderId) {
-        setVisibleStudentsFolderId(null);
-      }
-
-      if (visibleRequestsFolderId === folderId) {
-        setVisibleRequestsFolderId(null);
-      }
-
+      setFolders(folders.filter((f) => f.id !== folderId));
+      setSelectedFolderStudents((prev) => { const c = { ...prev }; delete c[folderId]; return c; });
+      setSelectedFolderRequests((prev) => { const c = { ...prev }; delete c[folderId]; return c; });
+      if (visibleStudentsFolderId === folderId) setVisibleStudentsFolderId(null);
+      if (visibleRequestsFolderId === folderId) setVisibleRequestsFolderId(null);
+      setExpandedFolders((prev) => { const n = new Set(prev); n.delete(folderId); return n; });
       setFolderMessage("Folder deleted successfully.");
     } catch (error) {
       setErrorMessage(error.message);
@@ -225,19 +214,10 @@ function TeacherFoldersPage() {
       setVisibleStudentsFolderId(null);
       return;
     }
-
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
+      clearMessages();
       const students = await getFolderStudents(folderId);
-
-      setSelectedFolderStudents({
-        ...selectedFolderStudents,
-        [folderId]: students,
-      });
-
+      setSelectedFolderStudents({ ...selectedFolderStudents, [folderId]: students });
       setVisibleStudentsFolderId(folderId);
     } catch (error) {
       setErrorMessage(error.message);
@@ -249,19 +229,10 @@ function TeacherFoldersPage() {
       setVisibleRequestsFolderId(null);
       return;
     }
-
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
+      clearMessages();
       const requests = await getFolderJoinRequests(folderId);
-
-      setSelectedFolderRequests({
-        ...selectedFolderRequests,
-        [folderId]: requests,
-      });
-
+      setSelectedFolderRequests({ ...selectedFolderRequests, [folderId]: requests });
       setVisibleRequestsFolderId(folderId);
     } catch (error) {
       setErrorMessage(error.message);
@@ -270,25 +241,14 @@ function TeacherFoldersPage() {
 
   async function handleApproveRequest(folderId, requestId) {
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
+      clearMessages();
       await approveFolderJoinRequest(requestId);
-
-      const updatedRequests = await getFolderJoinRequests(folderId);
-      const updatedStudents = await getFolderStudents(folderId);
-
-      setSelectedFolderRequests({
-        ...selectedFolderRequests,
-        [folderId]: updatedRequests,
-      });
-
-      setSelectedFolderStudents({
-        ...selectedFolderStudents,
-        [folderId]: updatedStudents,
-      });
-
+      const [updatedRequests, updatedStudents] = await Promise.all([
+        getFolderJoinRequests(folderId),
+        getFolderStudents(folderId),
+      ]);
+      setSelectedFolderRequests({ ...selectedFolderRequests, [folderId]: updatedRequests });
+      setSelectedFolderStudents({ ...selectedFolderStudents, [folderId]: updatedStudents });
       setFolderMessage("Request approved successfully.");
     } catch (error) {
       setErrorMessage(error.message);
@@ -297,19 +257,10 @@ function TeacherFoldersPage() {
 
   async function handleRejectRequest(folderId, requestId) {
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
+      clearMessages();
       await rejectFolderJoinRequest(requestId);
-
       const updatedRequests = await getFolderJoinRequests(folderId);
-
-      setSelectedFolderRequests({
-        ...selectedFolderRequests,
-        [folderId]: updatedRequests,
-      });
-
+      setSelectedFolderRequests({ ...selectedFolderRequests, [folderId]: updatedRequests });
       setFolderMessage("Request rejected.");
     } catch (error) {
       setErrorMessage(error.message);
@@ -317,37 +268,27 @@ function TeacherFoldersPage() {
   }
 
   async function handleRemoveStudent(folderId, studentId) {
-    const confirmed = window.confirm(
-      "Are you sure you want to remove this student from the folder?"
-    );
-
+    const confirmed = window.confirm("Are you sure you want to remove this student from the folder?");
     if (!confirmed) return;
 
     try {
-      setOrganizationMessage("");
-      setFolderMessage("");
-      setErrorMessage("");
-
+      clearMessages();
       await removeStudentFromFolder(folderId, studentId);
-
-      const updatedStudents = await getFolderStudents(folderId);
-      const updatedRequests = await getFolderJoinRequests(folderId);
-
-      setSelectedFolderStudents({
-        ...selectedFolderStudents,
-        [folderId]: updatedStudents,
-      });
-
-      setSelectedFolderRequests({
-        ...selectedFolderRequests,
-        [folderId]: updatedRequests,
-      });
-
+      const [updatedStudents, updatedRequests] = await Promise.all([
+        getFolderStudents(folderId),
+        getFolderJoinRequests(folderId),
+      ]);
+      setSelectedFolderStudents({ ...selectedFolderStudents, [folderId]: updatedStudents });
+      setSelectedFolderRequests({ ...selectedFolderRequests, [folderId]: updatedRequests });
       setFolderMessage("Student removed from folder.");
     } catch (error) {
       setErrorMessage(error.message);
     }
   }
+
+  const filteredFolders = folders.filter((f) =>
+    f.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) {
     return <main className="page">Loading folders...</main>;
@@ -361,57 +302,39 @@ function TeacherFoldersPage() {
         {organization ? (
           <div className="info-box">
             <h2>Your organization</h2>
-
-            <p>
-              You belong to: <strong>{organization.name}</strong>
-            </p>
-
+            <p>You belong to: <strong>{organization.name}</strong></p>
             <form onSubmit={handleUpdateOrganization} className="form">
               <label>
                 Modify organization name
                 <input
                   type="text"
                   value={organizationEditName}
-                  onChange={(event) =>
-                    setOrganizationEditName(event.target.value)
-                  }
+                  onChange={(e) => setOrganizationEditName(e.target.value)}
                   required
                 />
               </label>
-
               <button type="submit">Update organization</button>
             </form>
-
-            {organizationMessage && (
-              <p className="success">{organizationMessage}</p>
-            )}
+            {organizationMessage && <p className="success">{organizationMessage}</p>}
           </div>
         ) : (
           <div className="info-box">
             <h2>Create your organization</h2>
-
-            <p>
-              Before creating folders, define the organization you belong to.
-            </p>
-
+            <p>Before creating folders, define the organization you belong to.</p>
             <form onSubmit={handleCreateOrganization} className="form">
               <label>
                 Organization name
                 <input
                   type="text"
                   value={organizationName}
-                  onChange={(event) => setOrganizationName(event.target.value)}
+                  onChange={(e) => setOrganizationName(e.target.value)}
                   placeholder="Universidad Francisco de Vitoria"
                   required
                 />
               </label>
-
               <button type="submit">Create organization</button>
             </form>
-
-            {organizationMessage && (
-              <p className="success">{organizationMessage}</p>
-            )}
+            {organizationMessage && <p className="success">{organizationMessage}</p>}
           </div>
         )}
       </section>
@@ -419,32 +342,28 @@ function TeacherFoldersPage() {
       {organization && (
         <section className="section">
           <h2>Create folder</h2>
-
           <form onSubmit={handleCreateFolder} className="form">
             <label>
               Folder name
               <input
                 type="text"
                 value={folderName}
-                onChange={(event) => setFolderName(event.target.value)}
+                onChange={(e) => setFolderName(e.target.value)}
                 placeholder="English Vocabulary B2"
                 required
               />
             </label>
-
             <label>
               Description
               <textarea
                 value={folderDescription}
-                onChange={(event) => setFolderDescription(event.target.value)}
+                onChange={(e) => setFolderDescription(e.target.value)}
                 placeholder="Folder for vocabulary readings and practice."
-                rows="4"
+                rows="3"
               />
             </label>
-
             <button type="submit">Create folder</button>
           </form>
-
           {folderMessage && <p className="success">{folderMessage}</p>}
         </section>
       )}
@@ -452,200 +371,227 @@ function TeacherFoldersPage() {
       {errorMessage && <p className="error">{errorMessage}</p>}
 
       <section className="section">
-        <h2>Your folders</h2>
+        <div className="folder-list-header">
+          <h2>Your folders</h2>
+          {folders.length > 0 && (
+            <input
+              type="search"
+              className="folder-search-input"
+              placeholder="Search by name…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          )}
+        </div>
 
         {folders.length === 0 ? (
-          <p>No folders created yet.</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>No folders created yet.</p>
+        ) : filteredFolders.length === 0 ? (
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+            No folders match &quot;{searchTerm}&quot;.
+          </p>
         ) : (
-          <div className="folder-grid">
-            {folders.map((folder) => {
+          <div className="teacher-folder-list">
+            {filteredFolders.map((folder) => {
               const joinUrl = `${window.location.origin}/join/${folder.join_code}`;
               const isEditing = editingFolderId === folder.id;
+              const isExpanded = expandedFolders.has(folder.id);
+              const isVisible = folder.is_visible_to_students ?? true;
               const students = selectedFolderStudents[folder.id] || [];
               const requests = selectedFolderRequests[folder.id] || [];
               const showStudents = visibleStudentsFolderId === folder.id;
               const showRequests = visibleRequestsFolderId === folder.id;
 
               return (
-                <article key={folder.id} className="folder-card">
-                  {isEditing ? (
-                    <div className="edit-folder-form">
-                      <label>
-                        Folder name
-                        <input
-                          type="text"
-                          value={editingFolderName}
-                          onChange={(event) =>
-                            setEditingFolderName(event.target.value)
-                          }
-                          required
-                        />
-                      </label>
-
-                      <label>
-                        Description
-                        <textarea
-                          value={editingFolderDescription}
-                          onChange={(event) =>
-                            setEditingFolderDescription(event.target.value)
-                          }
-                          rows="4"
-                        />
-                      </label>
-
-                      <div className="action-row">
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateFolder(folder.id)}
-                        >
-                          Save
-                        </button>
-
-                        <button type="button" onClick={cancelEditingFolder}>
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
+                <article key={folder.id} className="folder-row-card">
+                  {/* Header — siempre visible */}
+                  <div className="folder-row-header">
+                    <div className="folder-row-info">
                       <h3>{folder.name}</h3>
+                      <span
+                        className={
+                          isVisible
+                            ? "status-badge published-badge"
+                            : "status-badge hidden-badge"
+                        }
+                      >
+                        {isVisible ? "Visible to students" : "Hidden from students"}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="folder-expand-btn"
+                      onClick={() => toggleExpanded(folder.id)}
+                      aria-expanded={isExpanded}
+                    >
+                      {isExpanded ? "Collapse ▲" : "Expand ▼"}
+                    </button>
+                  </div>
 
-                      <p>{folder.description || "No description provided."}</p>
-
-                      <p>
-                        Join code: <strong>{folder.join_code}</strong>
-                      </p>
-
-                      <div className="qr-box">
-                        <QRCodeSVG value={joinUrl} size={128} />
-                      </div>
-
-                      <p className="small-text">{joinUrl}</p>
-
-                      <div className="action-row">
-                        <button
-                          type="button"
-                          onClick={() => startEditingFolder(folder)}
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleStudents(folder.id)}
-                        >
-                          {showStudents ? "Hide students" : "View students"}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleRequests(folder.id)}
-                        >
-                          {showRequests ? "Hide requests" : "View requests"}
-                        </button>
-
-                        <button
-                          type="button"
-                          className="danger-button"
-                          onClick={() => handleDeleteFolder(folder.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-
-                      {showStudents && (
-                        <div className="students-box">
-                          <h4>Joined students</h4>
-
-                          {students.length === 0 ? (
-                            <p>No students have joined this folder yet.</p>
-                          ) : (
-                            <ul>
-                              {students.map((student) => (
-                                <li
-                                  key={student.student_id}
-                                  className="student-row"
-                                >
-                                  <span>
-                                    {student.first_name} {student.last_name} —{" "}
-                                    {student.email}
-                                  </span>
-
-                                  <button
-                                    type="button"
-                                    className="danger-button small-button"
-                                    onClick={() =>
-                                      handleRemoveStudent(
-                                        folder.id,
-                                        student.student_id
-                                      )
-                                    }
-                                  >
-                                    Remove
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                  {/* Cuerpo — colapsable */}
+                  {isExpanded && (
+                    <div className="folder-row-body">
+                      {isEditing ? (
+                        <div className="edit-folder-form">
+                          <label>
+                            Folder name
+                            <input
+                              type="text"
+                              value={editingFolderName}
+                              onChange={(e) => setEditingFolderName(e.target.value)}
+                              required
+                            />
+                          </label>
+                          <label>
+                            Description
+                            <textarea
+                              value={editingFolderDescription}
+                              onChange={(e) => setEditingFolderDescription(e.target.value)}
+                              rows="3"
+                            />
+                          </label>
+                          <div className="action-row">
+                            <button type="button" onClick={() => handleUpdateFolder(folder.id)}>
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              className="secondary-button"
+                              onClick={cancelEditingFolder}
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
-                      )}
+                      ) : (
+                        <>
+                          <p style={{ color: "var(--text-muted)", fontSize: "14px", marginTop: 0 }}>
+                            {folder.description || "No description provided."}
+                          </p>
 
-                      {showRequests && (
-                        <div className="students-box">
-                          <h4>Join requests</h4>
+                          <p style={{ fontSize: "14px" }}>
+                            Join code: <strong>{folder.join_code}</strong>
+                          </p>
 
-                          {requests.length === 0 ? (
-                            <p>No join requests for this folder.</p>
-                          ) : (
-                            <ul>
-                              {requests.map((request) => (
-                                <li
-                                  key={request.request_id}
-                                  className="student-row"
-                                >
-                                  <span>
-                                    {request.first_name} {request.last_name} —{" "}
-                                    {request.email} —{" "}
-                                    <strong>{request.status}</strong>
-                                  </span>
+                          <div className="qr-box">
+                            <QRCodeSVG value={joinUrl} size={128} />
+                          </div>
 
-                                  {request.status === "pending" && (
-                                    <div className="request-actions">
-                                      <button
-                                        type="button"
-                                        className="small-button"
-                                        onClick={() =>
-                                          handleApproveRequest(
-                                            folder.id,
-                                            request.request_id
-                                          )
-                                        }
-                                      >
-                                        Accept
-                                      </button>
+                          <p className="small-text">{joinUrl}</p>
 
+                          <div className="action-row">
+                            <button type="button" onClick={() => startEditingFolder(folder)}>
+                              Edit
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleToggleVisibility(folder)}
+                            >
+                              {isVisible ? "Hide from students" : "Publish to students"}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleToggleStudents(folder.id)}
+                            >
+                              {showStudents ? "Hide students" : "View students"}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleToggleRequests(folder.id)}
+                            >
+                              {showRequests ? "Hide requests" : "View requests"}
+                            </button>
+
+                            <button
+                              type="button"
+                              className="danger-button"
+                              onClick={() => handleDeleteFolder(folder.id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+
+                          {showStudents && (
+                            <div className="students-box">
+                              <h4>Joined students</h4>
+                              {students.length === 0 ? (
+                                <p style={{ fontSize: "14px", margin: 0, color: "var(--text-muted)" }}>
+                                  No students have joined this folder yet.
+                                </p>
+                              ) : (
+                                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                                  {students.map((student) => (
+                                    <li key={student.student_id} className="student-row">
+                                      <span>
+                                        {student.first_name} {student.last_name} — {student.email}
+                                      </span>
                                       <button
                                         type="button"
                                         className="danger-button small-button"
                                         onClick={() =>
-                                          handleRejectRequest(
-                                            folder.id,
-                                            request.request_id
-                                          )
+                                          handleRemoveStudent(folder.id, student.student_id)
                                         }
                                       >
-                                        Reject
+                                        Remove
                                       </button>
-                                    </div>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
                           )}
-                        </div>
+
+                          {showRequests && (
+                            <div className="students-box">
+                              <h4>Join requests</h4>
+                              {requests.length === 0 ? (
+                                <p style={{ fontSize: "14px", margin: 0, color: "var(--text-muted)" }}>
+                                  No join requests for this folder.
+                                </p>
+                              ) : (
+                                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                                  {requests.map((request) => (
+                                    <li key={request.request_id} className="student-row">
+                                      <span>
+                                        {request.first_name} {request.last_name} — {request.email}{" "}
+                                        — <strong>{request.status}</strong>
+                                      </span>
+                                      {request.status === "pending" && (
+                                        <div className="request-actions">
+                                          <button
+                                            type="button"
+                                            className="small-button success-button"
+                                            onClick={() =>
+                                              handleApproveRequest(folder.id, request.request_id)
+                                            }
+                                          >
+                                            Accept
+                                          </button>
+                                          <button
+                                            type="button"
+                                            className="danger-button small-button"
+                                            onClick={() =>
+                                              handleRejectRequest(folder.id, request.request_id)
+                                            }
+                                          >
+                                            Reject
+                                          </button>
+                                        </div>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          )}
+
+                          <FolderSectionsManager folderId={folder.id} />
+                        </>
                       )}
-                      <FolderSectionsManager folderId={folder.id} />
-                    </>
+                    </div>
                   )}
                 </article>
               );

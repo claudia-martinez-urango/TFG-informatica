@@ -7,6 +7,7 @@ import {
   updateSectionVisibility,
 } from "../../api/sectionsApi";
 import ConfirmModal from "../ui/ConfirmModal";
+import SectionReadingsManager from "./SectionReadingsManager";
 
 function FolderSectionsManager({ folderId }) {
   const [sections, setSections] = useState([]);
@@ -20,6 +21,8 @@ function FolderSectionsManager({ folderId }) {
   const [editingName, setEditingName] = useState("");
   const [editingDescription, setEditingDescription] = useState("");
   const [editingOrder, setEditingOrder] = useState(0);
+
+  const [visibleReadingsSectionId, setVisibleReadingsSectionId] = useState(null);
 
   const [sectionToDelete, setSectionToDelete] = useState(null);
 
@@ -227,6 +230,7 @@ function FolderSectionsManager({ folderId }) {
         <div className="sections-list">
           {sections.map((section) => {
             const isEditing = editingSectionId === section.id;
+            const showReadings = visibleReadingsSectionId === section.id;
 
             return (
               <div key={section.id} className="section-card">
@@ -234,6 +238,7 @@ function FolderSectionsManager({ folderId }) {
                   <div className="section-edit-form">
                     <div className="section-edit-header">
                       <h5>Edit section</h5>
+
                       <span
                         className={
                           section.is_visible_to_students
@@ -334,12 +339,27 @@ function FolderSectionsManager({ folderId }) {
 
                       <button
                         type="button"
+                        onClick={() =>
+                          setVisibleReadingsSectionId(
+                            showReadings ? null : section.id
+                          )
+                        }
+                      >
+                        {showReadings ? "Hide readings" : "Manage readings"}
+                      </button>
+
+                      <button
+                        type="button"
                         className="danger-button"
                         onClick={() => setSectionToDelete(section)}
                       >
                         Delete section
                       </button>
                     </div>
+
+                    {showReadings && (
+                      <SectionReadingsManager sectionId={section.id} />
+                    )}
                   </>
                 )}
               </div>
