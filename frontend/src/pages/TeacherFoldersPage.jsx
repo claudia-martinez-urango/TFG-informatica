@@ -15,6 +15,7 @@ import {
   updateLearningFolder,
   updateOrganization,
 } from "../api/foldersApi";
+import FolderSectionsManager from "../components/folders/FolderSectionsManager";
 
 function TeacherFoldersPage() {
   const { profile } = useAuth();
@@ -643,6 +644,7 @@ function TeacherFoldersPage() {
                           )}
                         </div>
                       )}
+                      <FolderSectionsManager folderId={folder.id} />
                     </>
                   )}
                 </article>

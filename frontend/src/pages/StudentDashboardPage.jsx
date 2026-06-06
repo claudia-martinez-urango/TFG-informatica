@@ -1,23 +1,34 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { getMyStudentFolders } from "../api/foldersApi";
+import { getFolderSections } from "../api/sectionsApi";
 
 function StudentDashboardPage() {
   const { profile } = useAuth();
   const [folders, setFolders] = useState([]);
+  const [sectionsByFolder, setSectionsByFolder] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    async function loadFolders() {
+    async function loadFoldersAndSections() {
       try {
         const data = await getMyStudentFolders();
         setFolders(data);
+
+        const sectionsMap = {};
+
+        for (const folder of data) {
+          const sections = await getFolderSections(folder.folder_id);
+          sectionsMap[folder.folder_id] = sections;
+        }
+
+        setSectionsByFolder(sectionsMap);
       } catch (error) {
         setErrorMessage(error.message);
       }
     }
 
-    loadFolders();
+    loadFoldersAndSections();
   }, []);
 
   return (
@@ -42,23 +53,47 @@ function StudentDashboardPage() {
           <p>You have not joined any folders yet.</p>
         ) : (
           <div className="folder-grid">
-            {folders.map((folder) => (
-              <article key={folder.folder_id} className="folder-card">
-                <h3>{folder.folder_name}</h3>
+            {folders.map((folder) => {
+              const sections = sectionsByFolder[folder.folder_id] || [];
 
-                <p>
-                  {folder.folder_description || "No description provided."}
-                </p>
+              return (
+                <article key={folder.folder_id} className="folder-card">
+                  <h3>{folder.folder_name}</h3>
 
-                <p>
-                  Organization: <strong>{folder.organization_name}</strong>
-                </p>
+                  <p>
+                    {folder.folder_description || "No description provided."}
+                  </p>
 
-                <p>
-                  Code: <strong>{folder.join_code}</strong>
-                </p>
-              </article>
-            ))}
+                  <p>
+                    Organization: <strong>{folder.organization_name}</strong>
+                  </p>
+
+                  <p>
+                    Code: <strong>{folder.join_code}</strong>
+                  </p>
+
+                  <div className="student-sections-box">
+                    <h4>Sections</h4>
+
+                    {sections.length === 0 ? (
+                      <p>No sections available yet.</p>
+                    ) : (
+                      <ul>
+                        {sections.map((section) => (
+                          <li key={section.id}>
+                            <strong>
+                              {section.order_index}. {section.name}
+                            </strong>
+                            <br />
+                            {section.description || "No description provided."}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
