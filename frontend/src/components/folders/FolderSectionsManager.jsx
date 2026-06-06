@@ -10,7 +10,6 @@ import ConfirmModal from "../ui/ConfirmModal";
 
 function FolderSectionsManager({ folderId }) {
   const [sections, setSections] = useState([]);
-
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   const [sectionName, setSectionName] = useState("");
@@ -30,7 +29,6 @@ function FolderSectionsManager({ folderId }) {
   async function loadSections() {
     try {
       setErrorMessage("");
-
       const data = await getFolderSections(folderId);
       setSections(data);
     } catch (error) {
@@ -67,7 +65,9 @@ function FolderSectionsManager({ folderId }) {
       setSectionOrder(0);
       setShowCreateForm(false);
 
-      setMessage("Section created successfully. It is hidden from students by default.");
+      setMessage(
+        "Section created successfully. It is hidden from students by default."
+      );
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -231,7 +231,22 @@ function FolderSectionsManager({ folderId }) {
             return (
               <div key={section.id} className="section-card">
                 {isEditing ? (
-                  <>
+                  <div className="section-edit-form">
+                    <div className="section-edit-header">
+                      <h5>Edit section</h5>
+                      <span
+                        className={
+                          section.is_visible_to_students
+                            ? "status-badge published-badge"
+                            : "status-badge hidden-badge"
+                        }
+                      >
+                        {section.is_visible_to_students
+                          ? "Visible to students"
+                          : "Hidden from students"}
+                      </span>
+                    </div>
+
                     <label>
                       Section name
                       <input
@@ -270,14 +285,14 @@ function FolderSectionsManager({ folderId }) {
                         type="button"
                         onClick={() => handleUpdateSection(section.id)}
                       >
-                        Save
+                        Save changes
                       </button>
 
                       <button type="button" onClick={cancelEditing}>
                         Cancel
                       </button>
                     </div>
-                  </>
+                  </div>
                 ) : (
                   <>
                     <div className="section-title-row">

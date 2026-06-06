@@ -408,3 +408,46 @@ button:disabled {
   color: #8a4b00;
   border: 1px solid #8a4b00;
 }
+
+.section-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.section-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-edit-header h5 {
+  margin: 0;
+}
+
+.section-edit-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.section-edit-form input,
+.section-edit-form textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.section-edit-form textarea {
+  resize: vertical;
+}
