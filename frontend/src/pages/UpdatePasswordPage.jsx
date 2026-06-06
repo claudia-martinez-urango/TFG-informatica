@@ -1,14 +1,11 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../auth/supabaseClient";
 
-function RegisterPage() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [role, setRole] = useState("student");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function UpdatePasswordPage() {
+  const navigate = useNavigate();
 
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +22,7 @@ function RegisterPage() {
 
   const isPasswordValid = Object.values(passwordRules).every(Boolean);
 
-  async function handleRegister(event) {
+  async function handleUpdatePassword(event) {
     event.preventDefault();
 
     setMessage("");
@@ -38,17 +35,8 @@ function RegisterPage() {
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
-      email,
+    const { error } = await supabase.auth.updateUser({
       password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          role,
-        },
-        emailRedirectTo: "http://localhost:5173/login",
-      },
     });
 
     if (error) {
@@ -57,66 +45,22 @@ function RegisterPage() {
       return;
     }
 
-    setMessage(
-      "Account created successfully. Please check your email to confirm your account before logging in."
-    );
-
-    setFirstName("");
-    setLastName("");
-    setRole("student");
-    setEmail("");
+    setMessage("Password updated successfully. You can now log in.");
     setPassword("");
     setLoading(false);
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 1500);
   }
 
   return (
     <main className="page">
-      <h1>Register</h1>
+      <h1>Update password</h1>
 
-      <form onSubmit={handleRegister} className="form">
+      <form onSubmit={handleUpdatePassword} className="form">
         <label>
-          First name
-          <input
-            type="text"
-            value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
-            required
-          />
-        </label>
-
-        <label>
-          Last name
-          <input
-            type="text"
-            value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
-            required
-          />
-        </label>
-
-        <label>
-          Role
-          <select
-            value={role}
-            onChange={(event) => setRole(event.target.value)}
-          >
-            <option value="student">Student</option>
-            <option value="teacher">Teacher</option>
-          </select>
-        </label>
-
-        <label>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-        </label>
-
-        <label>
-          Password
+          New password
           <input
             type="password"
             value={password}
@@ -147,12 +91,12 @@ function RegisterPage() {
         </div>
 
         <button type="submit" disabled={loading || !isPasswordValid}>
-          {loading ? "Creating account..." : "Register"}
+          {loading ? "Updating..." : "Update password"}
         </button>
       </form>
 
       <p>
-        Already have an account? <Link to="/login">Login here</Link>
+        Go back to <Link to="/login">Login</Link>
       </p>
 
       {message && <p className="success">{message}</p>}
@@ -161,4 +105,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default UpdatePasswordPage;
