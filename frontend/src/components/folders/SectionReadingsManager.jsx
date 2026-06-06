@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import mammoth from "mammoth/mammoth.browser";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -412,6 +413,13 @@ function SectionReadingsManager({ sectionId }) {
                     </p>
 
                     <div className="action-row">
+                      <Link
+                        to={`/reading/${reading.id}`}
+                        className="reading-open-button"
+                      >
+                        Open reading
+                      </Link>
+
                       <button
                         type="button"
                         onClick={() => startEditing(reading)}

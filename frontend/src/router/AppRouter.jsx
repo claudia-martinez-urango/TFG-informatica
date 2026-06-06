@@ -12,6 +12,7 @@ import StudentDashboardPage from "../pages/StudentDashboardPage";
 import TeacherDashboardPage from "../pages/TeacherDashboardPage";
 import TeacherFoldersPage from "../pages/TeacherFoldersPage";
 import JoinFolderPage from "../pages/JoinFolderPage";
+import ReadingDetailPage from '../pages/ReadingDetailPage';
 
 function AppRouter() {
   return (
@@ -66,6 +67,15 @@ function AppRouter() {
           element={
             <ProtectedRoute allowedRole="student">
               <JoinFolderPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reading/:readingId"
+          element={
+            <ProtectedRoute>
+              <ReadingDetailPage />
             </ProtectedRoute>
           }
         />

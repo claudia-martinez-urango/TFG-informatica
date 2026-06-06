@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { getMyStudentFolders } from "../api/foldersApi";
 import { getFolderSections } from "../api/sectionsApi";
@@ -161,7 +162,19 @@ function StudentDashboardPage() {
                                       {readings.map((reading) => (
                                         <div key={reading.id} className="student-reading-card">
                                           <h6>{reading.title}</h6>
-                                          <p>{reading.content}</p>
+                                          <p>
+                                            {reading.content.length > 180
+                                              ? `${reading.content.slice(0, 180)}…`
+                                              : reading.content}
+                                          </p>
+                                          <div className="reading-card-actions">
+                                            <Link
+                                              to={`/reading/${reading.id}`}
+                                              className="reading-open-button"
+                                            >
+                                              Open reading
+                                            </Link>
+                                          </div>
                                         </div>
                                       ))}
                                     </div>
