@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getReadingDetail } from '../api/readingDetailApi';
 import { getReadingGlossaryTerms } from '../api/glossaryApi';
 import { useAuth } from '../auth/AuthContext';
+import SelectableReadingContent from '../components/readings/SelectableReadingContent';
+import ReadingTermPanel from '../components/readings/ReadingTermPanel';
+import StudentPersonalGlossary from '../components/readings/StudentPersonalGlossary';
 
 function highlightTerms(content, terms) {
   if (!terms || terms.length === 0) return null;
@@ -31,10 +34,22 @@ function highlightTerms(content, terms) {
 function ReadingDetailPage() {
   const { readingId } = useParams();
   const { profile } = useAuth();
+
   const [reading, setReading] = useState(null);
   const [glossaryTerms, setGlossaryTerms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Student-only: currently selected word from the reading
+  const [selection, setSelection] = useState(null); // { selectedText, contextSentence }
+
+  // Student-only: mirror of StudentPersonalGlossary's term list so the panel
+  // can detect whether the selected word is already saved / mastered
+  const [personalTerms, setPersonalTerms] = useState([]);
+
+  // Student-only: drives StudentPersonalGlossary refresh
+  const [glossaryRefreshKey, setGlossaryRefreshKey] = useState(0);
+  const [addSuccessMessage, setAddSuccessMessage] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -56,6 +71,18 @@ function ReadingDetailPage() {
     load();
   }, [readingId]);
 
+  const handleSelectionChange = useCallback(({ selectedText, contextSentence }) => {
+    setSelection({ selectedText, contextSentence });
+  }, []);
+
+  const handleTermAdded = useCallback(() => {
+    setGlossaryRefreshKey((k) => k + 1);
+    setAddSuccessMessage('Word added to your personal glossary!');
+    setTimeout(() => setAddSuccessMessage(null), 3000);
+  }, []);
+
+  // ── Loading / error states ───────────────────────────────────
+
   if (loading) {
     return (
       <main className="page">
@@ -76,7 +103,15 @@ function ReadingDetailPage() {
   }
 
   const isTeacher = profile?.role === 'teacher';
+  const isStudent = profile?.role === 'student';
   const backTo = isTeacher ? '/teacher/folders' : '/student/dashboard';
+
+  // Find if the currently selected word already exists in the student's glossary
+  const savedTerm = selection?.selectedText
+    ? personalTerms.find(
+        (t) => t.normalized_term === selection.selectedText.toLowerCase().trim()
+      ) ?? null
+    : null;
 
   const visibleTerms = isTeacher
     ? glossaryTerms
@@ -86,6 +121,8 @@ function ReadingDetailPage() {
 
   return (
     <main className="page reading-detail-layout">
+
+      {/* ── Header ── */}
       <div className="reading-detail-header">
         <Link to={backTo} className="back-link">← Back to dashboard</Link>
 
@@ -93,17 +130,14 @@ function ReadingDetailPage() {
           <h1 className="reading-detail-title">{reading.title}</h1>
 
           {isTeacher && (
-            <span
-              className={`status-badge ${
-                reading.is_visible_to_students ? 'published-badge' : 'hidden-badge'
-              }`}
-            >
+            <span className={`status-badge ${reading.is_visible_to_students ? 'published-badge' : 'hidden-badge'}`}>
               {reading.is_visible_to_students ? 'Visible to students' : 'Hidden from students'}
             </span>
           )}
         </div>
       </div>
 
+      {/* ── Meta card ── */}
       <div className="reading-meta-card">
         <div className="meta-row">
           <span className="meta-label">Organization</span>
@@ -129,10 +163,49 @@ function ReadingDetailPage() {
         </div>
       </div>
 
-      <div className="reading-content-card">
-        <p className="reading-detail-content">{contentRendered}</p>
-      </div>
+      {/* ── Content area ── */}
+      {isStudent ? (
+        // Two-column layout: reading on the left, term panel on the right
+        <div className="reading-split-layout">
 
+          <div className="reading-split-content">
+            <div className="reading-content-card">
+              <SelectableReadingContent
+                content={reading.content}
+                onSelectionChange={handleSelectionChange}
+              />
+            </div>
+
+            {addSuccessMessage && (
+              <p className="success">{addSuccessMessage}</p>
+            )}
+
+            <StudentPersonalGlossary
+              readingId={readingId}
+              refreshKey={glossaryRefreshKey}
+              onTermsLoaded={setPersonalTerms}
+            />
+          </div>
+
+          <div className="reading-split-panel">
+            <ReadingTermPanel
+              readingId={readingId}
+              selectedText={selection?.selectedText}
+              contextSentence={selection?.contextSentence}
+              savedTerm={savedTerm}
+              onTermAdded={handleTermAdded}
+            />
+          </div>
+
+        </div>
+      ) : (
+        // Teacher: plain reading with term highlights
+        <div className="reading-content-card">
+          <p className="reading-detail-content">{contentRendered}</p>
+        </div>
+      )}
+
+      {/* ── Teacher / student glossary (full width) ── */}
       {visibleTerms.length > 0 && (
         <div className="reading-glossary-card">
           <h2>Glossary</h2>
@@ -142,11 +215,7 @@ function ReadingDetailPage() {
                 <div className="reading-glossary-term-header">
                   <strong>{term.term}</strong>
                   {isTeacher && (
-                    <span
-                      className={`status-badge ${
-                        term.is_visible_to_students ? 'published-badge' : 'hidden-badge'
-                      }`}
-                    >
+                    <span className={`status-badge ${term.is_visible_to_students ? 'published-badge' : 'hidden-badge'}`}>
                       {term.is_visible_to_students ? 'Visible' : 'Hidden'}
                     </span>
                   )}
@@ -170,10 +239,12 @@ function ReadingDetailPage() {
         </div>
       )}
 
+      {/* ── Bloom placeholder (full width) ── */}
       <div className="reading-placeholder-card">
         <h2>Bloom activities</h2>
         <p className="placeholder-text">Bloom activities will appear here.</p>
       </div>
+
     </main>
   );
 }
