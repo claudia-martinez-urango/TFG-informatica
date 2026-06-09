@@ -1,3 +1,5 @@
+import { SourceBadge } from './ReadingTermPanel';
+
 function SelectedTermPopup({ selectedText, preview, position, onAdd, onClose, loading, errorMessage }) {
   return (
     <div
@@ -12,18 +14,15 @@ function SelectedTermPopup({ selectedText, preview, position, onAdd, onClose, lo
       </div>
 
       {loading && !preview && (
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '8px 0 0 0' }}>
-          Loading…
-        </p>
+        <p className="selection-popup-loading">Loading…</p>
       )}
 
       {preview && (
         <>
-          <div className="selection-popup-source">
-            {preview.source_type === 'teacher_glossary' ? (
-              <span className="status-badge published-badge">From teacher glossary</span>
-            ) : (
-              <span className="status-badge hidden-badge">No teacher definition yet</span>
+          <div className="definition-source-row">
+            <SourceBadge source={preview.source_type} />
+            {preview.dictionary_part_of_speech && (
+              <span className="dictionary-meta">{preview.dictionary_part_of_speech}</span>
             )}
           </div>
 

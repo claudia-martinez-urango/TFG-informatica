@@ -5,17 +5,18 @@ import {
   deleteMyPersonalGlossaryTerm,
 } from '../../api/studentGlossaryApi';
 import ConfirmModal from '../ui/ConfirmModal';
+import { SourceBadge } from './ReadingTermPanel';
 
 // onTermsLoaded is called whenever the term list changes so the parent
 // (ReadingDetailPage) can check if the current panel selection is already saved.
 function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded }) {
-  const [terms, setTerms] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [savingId, setSavingId] = useState(null);
-  const [deleteId, setDeleteId] = useState(null);
+  const [terms,      setTerms]      = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState(null);
+  const [savingId,   setSavingId]   = useState(null);
+  const [deleteId,   setDeleteId]   = useState(null);
   const [noteValues, setNoteValues] = useState({});
-  const [successId, setSuccessId] = useState(null);
+  const [successId,  setSuccessId]  = useState(null);
 
   // Notify parent whenever the term list changes (load, toggle mastered, delete)
   useEffect(() => {
@@ -38,9 +39,7 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded }) {
     }
   }, [readingId]);
 
-  useEffect(() => {
-    load();
-  }, [load, refreshKey]);
+  useEffect(() => { load(); }, [load, refreshKey]);
 
   const handleSaveNote = async (term) => {
     setSavingId(term.id);
@@ -113,11 +112,19 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded }) {
         <div className="student-glossary-term-list">
           {terms.map((term) => (
             <div key={term.id} className="student-glossary-card">
+
               <div className="student-glossary-term-header">
                 <span className="student-glossary-term">{term.selected_text}</span>
                 <span className={term.is_mastered ? 'mastered-badge' : 'not-mastered-badge'}>
                   {term.is_mastered ? 'Mastered' : 'Learning'}
                 </span>
+              </div>
+
+              <div className="definition-source-row">
+                <SourceBadge source={term.definition_source} />
+                {term.definition_source === 'dictionary_api' && term.dictionary_part_of_speech && (
+                  <span className="dictionary-meta">{term.dictionary_part_of_speech}</span>
+                )}
               </div>
 
               {term.definition ? (
@@ -188,6 +195,7 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded }) {
                   </span>
                 )}
               </div>
+
             </div>
           ))}
         </div>

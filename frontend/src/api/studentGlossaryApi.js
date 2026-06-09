@@ -2,19 +2,22 @@ import { supabase } from '../auth/supabaseClient';
 
 function mapTerm(row) {
   return {
-    id:                      row.result_id,
-    student_id:              row.result_student_id,
-    reading_id:              row.result_reading_id,
-    linked_glossary_term_id: row.result_linked_glossary_term_id,
-    selected_text:           row.result_selected_text,
-    normalized_term:         row.result_normalized_term,
-    definition:              row.result_definition,
-    example_sentence:        row.result_example_sentence,
-    context_sentence:        row.result_context_sentence,
-    student_note:            row.result_student_note,
-    is_mastered:             row.result_is_mastered,
-    created_at:              row.result_created_at,
-    updated_at:              row.result_updated_at,
+    id:                        row.result_id,
+    student_id:                row.result_student_id,
+    reading_id:                row.result_reading_id,
+    linked_glossary_term_id:   row.result_linked_glossary_term_id,
+    selected_text:             row.result_selected_text,
+    normalized_term:           row.result_normalized_term,
+    definition:                row.result_definition,
+    example_sentence:          row.result_example_sentence,
+    context_sentence:          row.result_context_sentence,
+    student_note:              row.result_student_note,
+    is_mastered:               row.result_is_mastered,
+    definition_source:         row.result_definition_source ?? 'manual_pending',
+    dictionary_word:           row.result_dictionary_word ?? null,
+    dictionary_part_of_speech: row.result_dictionary_part_of_speech ?? null,
+    created_at:                row.result_created_at,
+    updated_at:                row.result_updated_at,
   };
 }
 
@@ -47,11 +50,23 @@ export async function previewSelectedTermForReading({ readingId, selectedText, c
   };
 }
 
-export async function addSelectedTermToMyGlossary({ readingId, selectedText, contextSentence }) {
+export async function addSelectedTermToMyGlossary({
+  readingId,
+  selectedText,
+  contextSentence,
+  definition             = null,
+  definitionSource       = 'manual_pending',
+  dictionaryWord         = null,
+  dictionaryPartOfSpeech = null,
+}) {
   const { data, error } = await supabase.rpc('add_selected_term_to_my_glossary', {
-    p_reading_id:       readingId,
-    p_selected_text:    selectedText,
-    p_context_sentence: contextSentence,
+    p_reading_id:                readingId,
+    p_selected_text:             selectedText,
+    p_context_sentence:          contextSentence,
+    p_definition:                definition,
+    p_definition_source:         definitionSource,
+    p_dictionary_word:           dictionaryWord,
+    p_dictionary_part_of_speech: dictionaryPartOfSpeech,
   });
   if (error) throw new Error(error.message);
   if (!data || data.length === 0) throw new Error('No data returned from add operation.');

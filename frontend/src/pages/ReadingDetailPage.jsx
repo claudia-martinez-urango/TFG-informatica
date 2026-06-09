@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getReadingDetail } from '../api/readingDetailApi';
 import { getReadingGlossaryTerms } from '../api/glossaryApi';
+import { updateReadingTranslation, getSectionReadings } from '../api/readingsApi';
 import { useAuth } from '../auth/AuthContext';
 import SelectableReadingContent from '../components/readings/SelectableReadingContent';
 import ReadingTermPanel from '../components/readings/ReadingTermPanel';
@@ -51,6 +52,13 @@ function ReadingDetailPage() {
   const [glossaryRefreshKey, setGlossaryRefreshKey] = useState(0);
   const [addSuccessMessage, setAddSuccessMessage] = useState(null);
 
+  // Teacher-only: translation toggle
+  const [translationToggling, setTranslationToggling] = useState(false);
+  const [translationError,    setTranslationError]    = useState(null);
+
+  // Navigation: other readings in the same section
+  const [sectionReadings, setSectionReadings] = useState([]);
+
   useEffect(() => {
     async function load() {
       try {
@@ -81,6 +89,32 @@ function ReadingDetailPage() {
     setTimeout(() => setAddSuccessMessage(null), 3000);
   }, []);
 
+  // Load sibling readings for navigation once section_id is known
+  useEffect(() => {
+    if (!reading?.section_id) return;
+    getSectionReadings(reading.section_id)
+      .then((data) =>
+        // Sort oldest-first so navigation follows natural reading order
+        setSectionReadings([...data].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)))
+      )
+      .catch(() => setSectionReadings([]));
+  }, [reading?.section_id]);
+
+  const handleToggleTranslation = useCallback(async () => {
+    if (!reading || translationToggling) return;
+    const next = !reading.is_translation_enabled;
+    setTranslationToggling(true);
+    setTranslationError(null);
+    try {
+      await updateReadingTranslation({ readingId: reading.reading_id, isTranslationEnabled: next });
+      setReading((prev) => ({ ...prev, is_translation_enabled: next }));
+    } catch (err) {
+      setTranslationError(err.message || 'Could not update translation setting.');
+    } finally {
+      setTranslationToggling(false);
+    }
+  }, [reading, translationToggling]);
+
   // ── Loading / error states ───────────────────────────────────
 
   if (loading) {
@@ -104,7 +138,14 @@ function ReadingDetailPage() {
 
   const isTeacher = profile?.role === 'teacher';
   const isStudent = profile?.role === 'student';
-  const backTo = isTeacher ? '/teacher/folders' : '/student/dashboard';
+  const backTo    = isTeacher ? '/teacher/folders' : '/student/dashboard';
+
+  const isTranslationEnabled = reading.is_translation_enabled ?? false;
+
+  // Reading navigation
+  const currentNavIndex = sectionReadings.findIndex((r) => r.id === readingId);
+  const prevReading     = currentNavIndex > 0 ? sectionReadings[currentNavIndex - 1] : null;
+  const nextReading     = currentNavIndex < sectionReadings.length - 1 ? sectionReadings[currentNavIndex + 1] : null;
 
   // Find if the currently selected word already exists in the student's glossary
   const savedTerm = selection?.selectedText
@@ -130,11 +171,33 @@ function ReadingDetailPage() {
           <h1 className="reading-detail-title">{reading.title}</h1>
 
           {isTeacher && (
-            <span className={`status-badge ${reading.is_visible_to_students ? 'published-badge' : 'hidden-badge'}`}>
-              {reading.is_visible_to_students ? 'Visible to students' : 'Hidden from students'}
-            </span>
+            <>
+              <span className={`status-badge ${reading.is_visible_to_students ? 'published-badge' : 'hidden-badge'}`}>
+                {reading.is_visible_to_students ? 'Visible to students' : 'Hidden from students'}
+              </span>
+
+              <button
+                type="button"
+                className={`small-button translation-toggle-btn ${isTranslationEnabled ? 'translation-toggle-on' : 'translation-toggle-off'}`}
+                onClick={handleToggleTranslation}
+                disabled={translationToggling}
+                title={isTranslationEnabled
+                  ? 'Students see Spanish translations. Click to disable.'
+                  : 'Click to enable Spanish translations for students.'}
+              >
+                {translationToggling
+                  ? 'Saving…'
+                  : isTranslationEnabled
+                    ? 'Translation: ON'
+                    : 'Translation: OFF'}
+              </button>
+            </>
           )}
         </div>
+
+        {translationError && (
+          <p className="error" style={{ marginTop: '8px', fontSize: '13px' }}>{translationError}</p>
+        )}
       </div>
 
       {/* ── Meta card ── */}
@@ -162,6 +225,33 @@ function ReadingDetailPage() {
           </span>
         </div>
       </div>
+
+      {/* ── Reading navigation ── */}
+      {(prevReading || nextReading) && (
+        <div className="reading-navigation">
+          <div className="reading-nav-slot">
+            {prevReading && (
+              <Link to={`/reading/${prevReading.id}`} className="reading-nav-btn reading-nav-prev">
+                ← {prevReading.title}
+              </Link>
+            )}
+          </div>
+
+          {sectionReadings.length > 1 && (
+            <span className="reading-nav-position">
+              {currentNavIndex + 1} / {sectionReadings.length}
+            </span>
+          )}
+
+          <div className="reading-nav-slot reading-nav-slot-right">
+            {nextReading && (
+              <Link to={`/reading/${nextReading.id}`} className="reading-nav-btn reading-nav-next">
+                {nextReading.title} →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Content area ── */}
       {isStudent ? (
@@ -193,6 +283,7 @@ function ReadingDetailPage() {
               selectedText={selection?.selectedText}
               contextSentence={selection?.contextSentence}
               savedTerm={savedTerm}
+              isTranslationEnabled={isTranslationEnabled}
               onTermAdded={handleTermAdded}
             />
           </div>

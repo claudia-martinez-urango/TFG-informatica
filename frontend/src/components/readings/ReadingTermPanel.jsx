@@ -3,30 +3,53 @@ import {
   previewSelectedTermForReading,
   addSelectedTermToMyGlossary,
 } from '../../api/studentGlossaryApi';
+import { fetchDictionaryDefinition, fetchWiktionaryDefinition, fetchTranslation } from '../../api/dictionaryApi';
 
 function SkeletonBlock({ width = '100%', height = 14 }) {
   return <div className="term-panel-skeleton" style={{ width, height }} />;
 }
 
-// Props:
-//   readingId        — current reading uuid
-//   selectedText     — word/phrase selected by student, or undefined
-//   contextSentence  — sentence containing the selection
-//   savedTerm        — matching entry from the student's personal glossary, or null
-//   onTermAdded      — callback fired after a successful add/update
-function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm, onTermAdded }) {
-  const [preview, setPreview]     = useState(null);
-  const [loading, setLoading]     = useState(false);
-  const [adding,  setAdding]      = useState(false);
-  const [error,   setError]       = useState(null);
-  const [justAdded, setJustAdded] = useState(false);
+// Shared badge — also imported by StudentPersonalGlossary
+export function SourceBadge({ source }) {
+  if (source === 'teacher_glossary') {
+    return <span className="source-badge source-teacher">Teacher glossary</span>;
+  }
+  if (source === 'dictionary_api') {
+    return <span className="source-badge source-dictionary">Dictionary API</span>;
+  }
+  return <span className="source-badge source-pending">Pending definition</span>;
+}
 
-  // Fetch preview every time the selected word changes
+// Props:
+//   readingId            — current reading uuid
+//   selectedText         — word/phrase selected by student, or undefined
+//   contextSentence      — sentence containing the selection
+//   savedTerm            — matching entry from the student's personal glossary, or null
+//   isTranslationEnabled — controlled by the teacher; shows Spanish translation when true
+//   onTermAdded          — callback fired after a successful add/update
+function ReadingTermPanel({
+  readingId,
+  selectedText,
+  contextSentence,
+  savedTerm,
+  isTranslationEnabled,
+  onTermAdded,
+}) {
+  const [preview,     setPreview]     = useState(null);
+  const [loading,     setLoading]     = useState(false);
+  const [adding,      setAdding]      = useState(false);
+  const [error,       setError]       = useState(null);
+  const [justAdded,   setJustAdded]   = useState(false);
+  const [dictResult,  setDictResult]  = useState(null);
+  const [translation, setTranslation] = useState(null);
+
   useEffect(() => {
     if (!selectedText) {
       setPreview(null);
       setError(null);
       setJustAdded(false);
+      setDictResult(null);
+      setTranslation(null);
       return;
     }
 
@@ -35,26 +58,77 @@ function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm,
     setPreview(null);
     setError(null);
     setJustAdded(false);
+    setDictResult(null);
+    setTranslation(null);
 
-    previewSelectedTermForReading({ readingId, selectedText, contextSentence })
-      .then((data) => { if (!cancelled) setPreview(data); })
-      .catch((err)  => { if (!cancelled) setError(err.message || 'Could not load preview.'); })
-      .finally(()   => { if (!cancelled) setLoading(false); });
+    (async () => {
+      try {
+        // RPC and translation (if enabled) run in parallel for minimum latency
+        const [rpcData, translResult] = await Promise.all([
+          previewSelectedTermForReading({ readingId, selectedText, contextSentence }),
+          isTranslationEnabled
+            ? fetchTranslation(selectedText)
+            : Promise.resolve({ found: false }),
+        ]);
+
+        if (cancelled) return;
+
+        if (translResult.found) setTranslation(translResult.translation);
+
+        if (rpcData?.source_type === 'no_definition') {
+          // 1st attempt: Free Dictionary API (single words only — multi-word returns null
+          //              from normalizeDictionaryLookupTerm without making any network call)
+          let defResult = await fetchDictionaryDefinition(selectedText);
+
+          // 2nd attempt: Wiktionary covers both single words and multi-word expressions
+          if (!defResult.found) {
+            if (cancelled) return;
+            defResult = await fetchWiktionaryDefinition(selectedText);
+          }
+
+          if (cancelled) return;
+
+          if (defResult.found) {
+            setDictResult(defResult);
+            setPreview({
+              ...rpcData,
+              definition:                defResult.definition,
+              example_sentence:          defResult.example ?? null,
+              source_type:               'dictionary_api',
+              dictionary_part_of_speech: defResult.partOfSpeech ?? null,
+            });
+          } else {
+            setPreview({ ...rpcData, source_type: 'manual_pending' });
+          }
+        } else {
+          setPreview(rpcData);
+        }
+      } catch (err) {
+        if (!cancelled) setError(err.message || 'Could not load preview.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
 
     return () => { cancelled = true; };
-  }, [readingId, selectedText, contextSentence]);
+  }, [readingId, selectedText, contextSentence, isTranslationEnabled]);
 
-  // Reset justAdded when a different word is selected
-  useEffect(() => {
-    setJustAdded(false);
-  }, [selectedText]);
+  useEffect(() => { setJustAdded(false); }, [selectedText]);
 
   const handleAdd = useCallback(async () => {
     if (!selectedText || adding) return;
     setAdding(true);
     setError(null);
     try {
-      await addSelectedTermToMyGlossary({ readingId, selectedText, contextSentence });
+      await addSelectedTermToMyGlossary({
+        readingId,
+        selectedText,
+        contextSentence,
+        definition:             dictResult?.definition ?? null,
+        definitionSource:       dictResult ? 'dictionary_api' : 'manual_pending',
+        dictionaryWord:         dictResult?.word ?? null,
+        dictionaryPartOfSpeech: dictResult?.partOfSpeech ?? null,
+      });
       setJustAdded(true);
       window.getSelection()?.removeAllRanges();
       if (onTermAdded) onTermAdded();
@@ -63,7 +137,7 @@ function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm,
     } finally {
       setAdding(false);
     }
-  }, [readingId, selectedText, contextSentence, adding, onTermAdded]);
+  }, [readingId, selectedText, contextSentence, dictResult, adding, onTermAdded]);
 
   // ── Empty state ──────────────────────────────────────────────
   if (!selectedText) {
@@ -111,6 +185,7 @@ function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm,
           <SkeletonBlock width="55%" height={12} />
           <SkeletonBlock width="100%" height={14} />
           <SkeletonBlock width="80%"  height={14} />
+          {isTranslationEnabled && <SkeletonBlock width="60%" height={14} />}
           <SkeletonBlock width="100%" height={48} />
         </div>
       )}
@@ -119,11 +194,10 @@ function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm,
       {!loading && preview && (
         <div className="reading-term-panel-body">
 
-          <div className="reading-term-panel-badge-row">
-            {preview.source_type === 'teacher_glossary' ? (
-              <span className="status-badge published-badge">From teacher glossary</span>
-            ) : (
-              <span className="status-badge hidden-badge">No teacher definition yet</span>
+          <div className="definition-source-row">
+            <SourceBadge source={preview.source_type} />
+            {preview.dictionary_part_of_speech && (
+              <span className="dictionary-meta">{preview.dictionary_part_of_speech}</span>
             )}
           </div>
 
@@ -133,10 +207,20 @@ function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm,
               <p className="reading-term-panel-text">{preview.definition}</p>
             ) : (
               <p className="reading-term-panel-text reading-term-panel-text-muted">
-                No definition available yet. You can still save this word.
+                {translation
+                  ? 'No English dictionary definition found for this expression.'
+                  : 'No definition available yet. You can still save this word.'}
               </p>
             )}
           </div>
+
+          {/* ── Spanish translation (teacher-enabled) ── */}
+          {isTranslationEnabled && translation && (
+            <div className="reading-term-panel-section reading-term-panel-translation">
+              <span className="reading-term-panel-label">Spanish translation</span>
+              <p className="reading-term-panel-text translation-text">{translation}</p>
+            </div>
+          )}
 
           {preview.example_sentence && (
             <div className="reading-term-panel-section">
@@ -176,7 +260,6 @@ function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm,
       {/* ── Actions ── */}
       <div className="reading-term-panel-actions">
         {isMastered ? (
-          // ── MASTERED ─────────────────────────────────────────
           <div className="reading-term-panel-mastered-block">
             <p>You have already mastered this word.</p>
             <p style={{ marginTop: '4px', fontSize: '12px', opacity: 0.75 }}>
@@ -184,10 +267,8 @@ function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm,
             </p>
           </div>
         ) : justAdded ? (
-          // ── JUST ADDED ───────────────────────────────────────
           <p className="reading-term-panel-success">Added to your glossary!</p>
         ) : isSaved ? (
-          // ── ALREADY SAVED, NOT MASTERED ──────────────────────
           <div className="reading-term-panel-already-saved">
             <p>This word is already in your glossary.</p>
             <button
@@ -201,7 +282,6 @@ function ReadingTermPanel({ readingId, selectedText, contextSentence, savedTerm,
             </button>
           </div>
         ) : (
-          // ── NOT SAVED ─────────────────────────────────────────
           <button
             type="button"
             className="reading-term-panel-add-btn"

@@ -14,6 +14,7 @@ export async function getReadingDetail(readingId) {
     title:                             row.result_title,
     content:                           row.result_content,
     is_visible_to_students:            row.result_is_visible_to_students,
+    is_translation_enabled:            row.result_is_translation_enabled ?? false,
     section_id:                        row.result_section_id,
     section_name:                      row.result_section_name,
     section_is_visible_to_students:    row.result_section_is_visible_to_students,

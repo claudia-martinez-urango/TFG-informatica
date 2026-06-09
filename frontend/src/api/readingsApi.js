@@ -82,6 +82,19 @@ export async function updateReadingVisibility({
   return data;
 }
 
+export async function updateReadingTranslation({ readingId, isTranslationEnabled }) {
+  const { error } = await supabase
+    .from('readings')
+    .update({
+      is_translation_enabled: isTranslationEnabled,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', readingId);
+
+  if (error) throw new Error(error.message);
+  return true;
+}
+
 export async function deleteReading(readingId) {
   const { error } = await supabase
     .from("readings")
