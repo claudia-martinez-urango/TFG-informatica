@@ -108,7 +108,7 @@ Supabase Edge Function escrita en Deno/TypeScript. Es el único punto donde se u
 - `SUPABASE_URL` — inyectada automáticamente por Supabase
 - `SUPABASE_ANON_KEY` — inyectada automáticamente
 - `SUPABASE_SERVICE_ROLE_KEY` — inyectada automáticamente
-- `OPENAI_API_KEY` — configurar manualmente con `supabase secrets set OPENAI_API_KEY=sk-...`
+- `OPENAI_API_KEY` — configurada manualmente en Supabase Dashboard → Edge Functions → Secrets
 
 ---
 
@@ -149,8 +149,8 @@ Componente que representa una actividad Bloom individual.
 - Muestra el badge de nivel Bloom con color según el nivel.
 - Muestra el enunciado de la actividad.
 - Textarea para escribir la respuesta, con botón "Submit answer" (primer envío) o "Update answer" (si ya existe respuesta guardada).
-- Botón "Show suggested answer" visible solo si la actividad tiene `expected_answer` y el estudiante ya ha enviado su respuesta. Antes del primer envío, el botón está deshabilitado.
-- Feedback de error y confirmación de guardado.
+- Botón "Show suggested answer" visible solo si la actividad tiene `expected_answer` y el estudiante ya ha enviado su respuesta. Antes del primer envío, el botón está deshabilitado. Una vez revelada, el botón cambia a "Hide suggestion" para poder ocultarla de nuevo.
+- Feedback de error y confirmación de guardado ("Saved!" durante 2.5 segundos).
 
 ---
 
@@ -308,14 +308,44 @@ El estudiante expande "Personal practice" (toggle AI)
 
 ## Despliegue
 
+Este proyecto no tiene `supabase/config.toml`, por lo que el despliegue se realiza desde el **Supabase Dashboard** (sin CLI).
+
+### Paso 1 — Ejecutar el SQL
+
+Copiar el contenido de `database/ai_personal_bloom_schema.sql` y ejecutarlo en **Supabase Dashboard → SQL Editor**.
+
+### Paso 2 — Desplegar la Edge Function
+
+1. Supabase Dashboard → **Edge Functions** → **Functions** → **Create a new function**
+2. Nombre exacto: `generate-personal-bloom-activities`
+3. Pegar el contenido de `supabase/functions/generate-personal-bloom-activities/index.ts`
+4. Clic en **Deploy**
+
+### Paso 3 — Configurar el secret de OpenAI
+
+Supabase Dashboard → **Edge Functions** → **Secrets** → sección "ADD OR REPLACE SECRETS":
+
+- **Name:** `OPENAI_API_KEY`
+- **Value:** clave de OpenAI (`sk-proj-...`)
+- Clic en **Save**
+
+La clave se obtiene en [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
+
+### Nota sobre facturación de OpenAI
+
+La API de OpenAI **es un sistema de pago independiente** de la suscripción ChatGPT Pro. Requiere añadir créditos en [platform.openai.com/settings/billing](https://platform.openai.com/settings/billing).
+
+- Modelo usado: `gpt-4o-mini`
+- Coste aproximado por generación: **~$0.001** (una décima de céntimo)
+- Con **$5** se pueden realizar **+3.000 generaciones**
+- Se recomienda desactivar el auto-recharge para controlar el gasto
+
+### Despliegue alternativo con CLI (opcional)
+
+Si en el futuro se inicializa el CLI (`supabase init` + `supabase link`):
+
 ```bash
-# 1. Ejecutar el SQL en Supabase SQL Editor
-#    database/ai_personal_bloom_schema.sql
-
-# 2. Configurar el secret de OpenAI
 supabase secrets set OPENAI_API_KEY=sk-...
-
-# 3. Desplegar la Edge Function
 supabase functions deploy generate-personal-bloom-activities
 ```
 
@@ -328,3 +358,32 @@ supabase functions deploy generate-personal-bloom-activities
 - **La respuesta sugerida está oculta por defecto.** El botón "Show suggested answer" solo se habilita después del primer envío, para animar al estudiante a pensar antes de ver la respuesta modelo.
 - **Carga lazy de actividades.** Las actividades de un término solo se cargan cuando el estudiante expande la sección, evitando N peticiones paralelas al cargar el glosario completo.
 - **Sin corrección automática.** Las respuestas se guardan tal cual. No hay puntuación ni validación de contenido en esta versión.
+- **Bloom a nivel de palabra, no de lectura.** Las actividades se generan por término individual porque el estudiante lo seleccionó explícitamente como desconocido — es su gap real de vocabulario. El contexto de la lectura se incluye en el prompt para enriquecer las actividades, por lo que no están desconectadas del texto.
+
+---
+
+## Trabajo futuro
+
+Extensiones identificadas durante el desarrollo, no implementadas en esta versión:
+
+### Flashcards de vocabulario
+
+No requiere IA ni esquema nuevo. Los datos ya existen en `student_glossary_terms`:
+- Cara delantera: `selected_text`
+- Cara trasera: `definition` + `example_sentence`
+- El botón "Mark as mastered" ya existe y podría integrarse con el flujo de repaso
+- Extensión posible: spaced repetition con columna `next_review_at` en `student_glossary_terms`
+
+### Actividades Bloom a nivel de lectura
+
+Feature distinta a la actual — entrenaría **comprensión lectora**, no vocabulario:
+- Una nueva Edge Function `generate-reading-bloom-activities`
+- Input: título + contenido completo de la lectura
+- Output: actividades sobre el argumento del texto, análisis del autor, síntesis, etc.
+- Ejemplo de nivel analyze: *"Compare los dos problemas medioambientales mencionados en el texto"*
+
+### Vista del profesor
+
+En esta versión el profesor no tiene acceso a las respuestas de los estudiantes. Como extensión:
+- Panel en la vista del profesor con las respuestas por alumno y por término
+- Posibilidad de añadir feedback escrito a cada respuesta
