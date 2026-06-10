@@ -6,10 +6,11 @@ import {
 } from '../../api/studentGlossaryApi';
 import ConfirmModal from '../ui/ConfirmModal';
 import { SourceBadge } from './ReadingTermPanel';
+import PersonalBloomPractice from './PersonalBloomPractice';
 
 // onTermsLoaded is called whenever the term list changes so the parent
 // (ReadingDetailPage) can check if the current panel selection is already saved.
-function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded }) {
+function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded, readingTitle, readingExcerpt }) {
   const [terms,      setTerms]      = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState(null);
@@ -195,6 +196,13 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded }) {
                   </span>
                 )}
               </div>
+
+              {/* ── AI Bloom Practice for this term ── */}
+              <PersonalBloomPractice
+                personalTerm={term}
+                readingTitle={readingTitle ?? ''}
+                readingExcerpt={readingExcerpt ?? null}
+              />
 
             </div>
           ))}

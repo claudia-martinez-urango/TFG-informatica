@@ -274,6 +274,8 @@ function ReadingDetailPage() {
               readingId={readingId}
               refreshKey={glossaryRefreshKey}
               onTermsLoaded={setPersonalTerms}
+              readingTitle={reading.title}
+              readingExcerpt={reading.content ? reading.content.slice(0, 600) : null}
             />
           </div>
 
@@ -330,11 +332,6 @@ function ReadingDetailPage() {
         </div>
       )}
 
-      {/* ── Bloom placeholder (full width) ── */}
-      <div className="reading-placeholder-card">
-        <h2>Bloom activities</h2>
-        <p className="placeholder-text">Bloom activities will appear here.</p>
-      </div>
 
     </main>
   );
