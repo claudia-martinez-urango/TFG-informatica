@@ -2124,71 +2124,6 @@ button:disabled {
   white-space: pre-wrap;
 }
 
-/* ===== SELECTION POPUP ===== */
-.selection-popup {
-  position: fixed;
-  z-index: 500;
-  background-color: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: 16px 18px;
-  min-width: 260px;
-  max-width: 340px;
-  animation: modal-in 0.14s ease;
-}
-
-.selection-popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.selection-popup-term {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  word-break: break-word;
-  line-height: 1.4;
-}
-
-.selection-popup-source {
-  margin-bottom: 8px;
-}
-
-.selection-popup-definition {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.6;
-  margin: 0 0 6px 0;
-}
-
-.selection-popup-no-definition {
-  font-style: italic;
-  color: var(--text-light) !important;
-}
-
-.selection-popup-example {
-  font-size: 12px !important;
-  color: var(--text-light) !important;
-}
-
-.selection-popup-context {
-  font-size: 12px;
-  color: var(--text-light);
-  font-style: italic;
-  line-height: 1.5;
-  margin: 0 0 6px 0;
-  word-break: break-word;
-}
-
-.selection-popup-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
 
 /* ===== STUDENT PERSONAL GLOSSARY (reading detail section) ===== */
 .student-glossary-box {
@@ -2547,12 +2482,6 @@ button:disabled {
   flex-wrap: wrap;
 }
 
-/* Legacy loading state for SelectedTermPopup */
-.selection-popup-loading {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 8px 0 0;
-}
 
 /* ===== READING NAVIGATION ===== */
 
@@ -2951,4 +2880,76 @@ button:disabled {
   .reading-term-panel {
     max-height: none;
   }
+}
+
+/* ── Spanish translation — ReadingTermPanel editable field ──── */
+
+.translation-field-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.translation-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.translation-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 99, 102, 241), 0.1);
+}
+
+.translation-input::placeholder {
+  color: var(--text-light);
+}
+
+/* ── Translation source badges ──────────────────────────────── */
+
+.translation-source-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: 0.02em;
+}
+
+.translation-source-context {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.translation-source-api {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.translation-source-student {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+/* ── Spanish translation in the glossary card ───────────────── */
+
+.student-glossary-translation {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-light, #f0f0f0);
+}
+
+.spanish-translation-text {
+  font-size: 14px;
+  color: var(--text);
+  margin: 3px 0 5px;
 }

@@ -3,7 +3,8 @@ import {
   previewSelectedTermForReading,
   addSelectedTermToMyGlossary,
 } from '../../api/studentGlossaryApi';
-import { fetchDictionaryDefinition, fetchWiktionaryDefinition, fetchTranslation } from '../../api/dictionaryApi';
+import { fetchDictionaryDefinition, fetchWiktionaryDefinition } from '../../api/dictionaryApi';
+import { getContextAwareSpanishTranslation } from '../../api/contextualTranslationApi';
 
 function SkeletonBlock({ width = '100%', height = 14 }) {
   return <div className="term-panel-skeleton" style={{ width, height }} />;
@@ -18,6 +19,17 @@ export function SourceBadge({ source }) {
     return <span className="source-badge source-dictionary">Dictionary API</span>;
   }
   return <span className="source-badge source-pending">Pending definition</span>;
+}
+
+// Badge indicating where a Spanish translation came from — also imported by StudentPersonalGlossary
+export function TranslationSourceBadge({ source }) {
+  if (source === 'api') {
+    return <span className="translation-source-badge translation-source-api">DeepL</span>;
+  }
+  if (source === 'student_edited') {
+    return <span className="translation-source-badge translation-source-student">Edited by you</span>;
+  }
+  return null;
 }
 
 // Props:
@@ -35,13 +47,14 @@ function ReadingTermPanel({
   isTranslationEnabled,
   onTermAdded,
 }) {
-  const [preview,     setPreview]     = useState(null);
-  const [loading,     setLoading]     = useState(false);
-  const [adding,      setAdding]      = useState(false);
-  const [error,       setError]       = useState(null);
-  const [justAdded,   setJustAdded]   = useState(false);
-  const [dictResult,  setDictResult]  = useState(null);
-  const [translation, setTranslation] = useState(null);
+  const [preview,         setPreview]         = useState(null);
+  const [loading,         setLoading]         = useState(false);
+  const [adding,          setAdding]          = useState(false);
+  const [error,           setError]           = useState(null);
+  const [justAdded,       setJustAdded]       = useState(false);
+  const [dictResult,      setDictResult]      = useState(null);
+  const [translationData, setTranslationData] = useState(null); // { translation, source, confidence }
+  const [translationEdit, setTranslationEdit] = useState('');   // editable field value
 
   useEffect(() => {
     if (!selectedText) {
@@ -49,7 +62,8 @@ function ReadingTermPanel({
       setError(null);
       setJustAdded(false);
       setDictResult(null);
-      setTranslation(null);
+      setTranslationData(null);
+      setTranslationEdit('');
       return;
     }
 
@@ -59,25 +73,28 @@ function ReadingTermPanel({
     setError(null);
     setJustAdded(false);
     setDictResult(null);
-    setTranslation(null);
+    setTranslationData(null);
+    setTranslationEdit('');
 
     (async () => {
       try {
-        // RPC and translation (if enabled) run in parallel for minimum latency
+        // RPC preview and context-aware translation run in parallel
         const [rpcData, translResult] = await Promise.all([
           previewSelectedTermForReading({ readingId, selectedText, contextSentence }),
           isTranslationEnabled
-            ? fetchTranslation(selectedText)
+            ? getContextAwareSpanishTranslation(selectedText, contextSentence)
             : Promise.resolve({ found: false }),
         ]);
 
         if (cancelled) return;
 
-        if (translResult.found) setTranslation(translResult.translation);
+        if (translResult.found) {
+          setTranslationData(translResult);
+          setTranslationEdit(translResult.translation);
+        }
 
         if (rpcData?.source_type === 'no_definition') {
-          // 1st attempt: Free Dictionary API (single words only — multi-word returns null
-          //              from normalizeDictionaryLookupTerm without making any network call)
+          // 1st attempt: Free Dictionary API (single words only)
           let defResult = await fetchDictionaryDefinition(selectedText);
 
           // 2nd attempt: Wiktionary covers both single words and multi-word expressions
@@ -120,6 +137,27 @@ function ReadingTermPanel({
     setAdding(true);
     setError(null);
     try {
+      // Compute final translation values.
+      // When translation is disabled we preserve whatever is already saved
+      // so an "Update definition" click never wipes the stored translation.
+      let spanishTranslation, translationSource, translationConfidence;
+
+      if (isTranslationEnabled) {
+        const edited   = translationEdit.trim();
+        const isEdited = edited !== (translationData?.translation ?? '');
+        spanishTranslation    = edited || null;
+        translationSource     = edited
+          ? (isEdited ? 'student_edited' : (translationData?.source ?? 'manual_pending'))
+          : 'manual_pending';
+        translationConfidence = edited
+          ? (isEdited ? 100 : (translationData?.confidence ?? 0))
+          : 0;
+      } else {
+        spanishTranslation    = savedTerm?.spanish_translation    ?? null;
+        translationSource     = savedTerm?.translation_source     ?? 'manual_pending';
+        translationConfidence = savedTerm?.translation_confidence ?? 0;
+      }
+
       await addSelectedTermToMyGlossary({
         readingId,
         selectedText,
@@ -128,6 +166,9 @@ function ReadingTermPanel({
         definitionSource:       dictResult ? 'dictionary_api' : 'manual_pending',
         dictionaryWord:         dictResult?.word ?? null,
         dictionaryPartOfSpeech: dictResult?.partOfSpeech ?? null,
+        spanishTranslation,
+        translationSource,
+        translationConfidence,
       });
       setJustAdded(true);
       window.getSelection()?.removeAllRanges();
@@ -137,7 +178,11 @@ function ReadingTermPanel({
     } finally {
       setAdding(false);
     }
-  }, [readingId, selectedText, contextSentence, dictResult, adding, onTermAdded]);
+  }, [
+    readingId, selectedText, contextSentence, dictResult,
+    translationEdit, translationData, isTranslationEnabled, savedTerm,
+    adding, onTermAdded,
+  ]);
 
   // ── Empty state ──────────────────────────────────────────────
   if (!selectedText) {
@@ -207,18 +252,27 @@ function ReadingTermPanel({
               <p className="reading-term-panel-text">{preview.definition}</p>
             ) : (
               <p className="reading-term-panel-text reading-term-panel-text-muted">
-                {translation
+                {translationData
                   ? 'No English dictionary definition found for this expression.'
                   : 'No definition available yet. You can still save this word.'}
               </p>
             )}
           </div>
 
-          {/* ── Spanish translation (teacher-enabled) ── */}
-          {isTranslationEnabled && translation && (
+          {/* ── Editable Spanish translation (teacher-enabled) ── */}
+          {isTranslationEnabled && (
             <div className="reading-term-panel-section reading-term-panel-translation">
-              <span className="reading-term-panel-label">Spanish translation</span>
-              <p className="reading-term-panel-text translation-text">{translation}</p>
+              <div className="translation-field-header">
+                <span className="reading-term-panel-label">Spanish translation</span>
+                {translationData && <TranslationSourceBadge source={translationData.source} />}
+              </div>
+              <input
+                type="text"
+                className="translation-input"
+                value={translationEdit}
+                onChange={(e) => setTranslationEdit(e.target.value)}
+                placeholder="Spanish translation (optional)"
+              />
             </div>
           )}
 

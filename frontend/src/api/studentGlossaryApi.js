@@ -16,6 +16,9 @@ function mapTerm(row) {
     definition_source:         row.result_definition_source ?? 'manual_pending',
     dictionary_word:           row.result_dictionary_word ?? null,
     dictionary_part_of_speech: row.result_dictionary_part_of_speech ?? null,
+    spanish_translation:       row.result_spanish_translation ?? null,
+    translation_source:        row.result_translation_source ?? 'manual_pending',
+    translation_confidence:    row.result_translation_confidence ?? 0,
     created_at:                row.result_created_at,
     updated_at:                row.result_updated_at,
   };
@@ -58,6 +61,9 @@ export async function addSelectedTermToMyGlossary({
   definitionSource       = 'manual_pending',
   dictionaryWord         = null,
   dictionaryPartOfSpeech = null,
+  spanishTranslation     = null,
+  translationSource      = 'manual_pending',
+  translationConfidence  = 0,
 }) {
   const { data, error } = await supabase.rpc('add_selected_term_to_my_glossary', {
     p_reading_id:                readingId,
@@ -67,6 +73,9 @@ export async function addSelectedTermToMyGlossary({
     p_definition_source:         definitionSource,
     p_dictionary_word:           dictionaryWord,
     p_dictionary_part_of_speech: dictionaryPartOfSpeech,
+    p_spanish_translation:       spanishTranslation,
+    p_translation_source:        translationSource,
+    p_translation_confidence:    translationConfidence,
   });
   if (error) throw new Error(error.message);
   if (!data || data.length === 0) throw new Error('No data returned from add operation.');

@@ -5,7 +5,7 @@ import {
   deleteMyPersonalGlossaryTerm,
 } from '../../api/studentGlossaryApi';
 import ConfirmModal from '../ui/ConfirmModal';
-import { SourceBadge } from './ReadingTermPanel';
+import { SourceBadge, TranslationSourceBadge } from './ReadingTermPanel';
 import PersonalBloomPractice from './PersonalBloomPractice';
 
 // onTermsLoaded is called whenever the term list changes so the parent
@@ -148,6 +148,14 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded, reading
                   <span className="glossary-meta-label">Context:</span>{' '}
                   &ldquo;{term.context_sentence}&rdquo;
                 </p>
+              )}
+
+              {term.spanish_translation && (
+                <div className="student-glossary-translation">
+                  <span className="reading-term-panel-label">Spanish translation</span>
+                  <p className="spanish-translation-text">{term.spanish_translation}</p>
+                  <TranslationSourceBadge source={term.translation_source} />
+                </div>
               )}
 
               <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', fontWeight: '500', color: 'var(--text-muted)', marginTop: '12px' }}>

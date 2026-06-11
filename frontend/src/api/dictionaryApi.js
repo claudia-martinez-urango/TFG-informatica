@@ -96,34 +96,3 @@ export async function fetchWiktionaryDefinition(term) {
     return { found: false };
   }
 }
-
-// MyMemory Translation API — free, no API key, ~1000 words/day on the anonymous tier.
-// Works for single words AND multi-word expressions (unlike the dictionary API).
-// Returns:
-//   { found: true, translation: string }
-//   { found: false }
-export async function fetchTranslation(text, from = 'en', to = 'es') {
-  if (!text || !text.trim()) return { found: false };
-
-  try {
-    const url =
-      `https://api.mymemory.translated.net/get` +
-      `?q=${encodeURIComponent(text.trim())}` +
-      `&langpair=${from}|${to}`;
-
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) return { found: false };
-
-    const data       = await res.json();
-    const translated = data?.responseData?.translatedText;
-
-    // Ignore if the API echoed back the original unchanged
-    if (!translated || translated.toLowerCase() === text.trim().toLowerCase()) {
-      return { found: false };
-    }
-
-    return { found: true, translation: translated };
-  } catch {
-    return { found: false };
-  }
-}
