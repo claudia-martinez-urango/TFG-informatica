@@ -5,6 +5,7 @@ import { getMyStudentFolders } from "../api/foldersApi";
 import { getFolderSections } from "../api/sectionsApi";
 import { getSectionReadings } from "../api/readingsApi";
 import { getReadingGlossaryTerms } from "../api/glossaryApi";
+import { getMyFlashcardReminder } from "../api/flashcardsApi";
 
 function StudentDashboardPage() {
   const { profile } = useAuth();
@@ -15,6 +16,7 @@ function StudentDashboardPage() {
   const [expandedFolders, setExpandedFolders] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [flashcardReminder, setFlashcardReminder] = useState(null);
 
   useEffect(() => {
     async function loadFoldersSectionsAndReadings() {
@@ -54,6 +56,10 @@ function StudentDashboardPage() {
     }
 
     loadFoldersSectionsAndReadings();
+
+    getMyFlashcardReminder()
+      .then(setFlashcardReminder)
+      .catch(() => {});
   }, []);
 
   function toggleFolder(folderId) {
@@ -84,6 +90,19 @@ function StudentDashboardPage() {
       <h1>Student Dashboard</h1>
 
       {errorMessage && <p className="error">{errorMessage}</p>}
+
+      {/* ── Flashcard reminder widget ── */}
+      {flashcardReminder && flashcardReminder.due_count > 0 && (
+        <div className="flashcard-reminder" style={{ marginBottom: '24px' }}>
+          {flashcardReminder.overdue_count > 0
+            ? `Some vocabulary cards are overdue, but you can review them whenever you are ready.`
+            : flashcardReminder.reminder_message}
+          {' '}
+          <Link to="/student/flashcards" className="primary-button" style={{ display: 'inline-block', marginTop: '8px' }}>
+            Review now
+          </Link>
+        </div>
+      )}
 
       <section className="section">
         <div className="folder-list-header">

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
+import FlashcardReminderBadge from "../flashcards/FlashcardReminderBadge";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ function Navbar() {
           <>
             <Link to="/student/dashboard">Dashboard</Link>
             <Link to="/join">Join Folder</Link>
+            <FlashcardReminderBadge />
           </>
         )}
 

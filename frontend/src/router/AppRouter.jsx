@@ -13,6 +13,7 @@ import TeacherDashboardPage from "../pages/TeacherDashboardPage";
 import TeacherFoldersPage from "../pages/TeacherFoldersPage";
 import JoinFolderPage from "../pages/JoinFolderPage";
 import ReadingDetailPage from '../pages/ReadingDetailPage';
+import StudentFlashcardsPage from '../pages/StudentFlashcardsPage';
 
 function AppRouter() {
   return (
@@ -67,6 +68,15 @@ function AppRouter() {
           element={
             <ProtectedRoute allowedRole="student">
               <JoinFolderPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/student/flashcards"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <StudentFlashcardsPage />
             </ProtectedRoute>
           }
         />

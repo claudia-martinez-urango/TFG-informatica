@@ -85,7 +85,7 @@ body {
   color: var(--text-muted);
   text-decoration: none;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
   transition: color 0.15s, background-color 0.15s;
@@ -98,7 +98,7 @@ body {
 }
 
 .navbar-user {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   padding: 5px 12px;
   background-color: var(--surface-alt);
@@ -109,7 +109,7 @@ body {
 
 .logout-button {
   padding: 7px 14px;
-  font-size: 13px;
+  font-size: 14px;
   background-color: transparent;
   color: var(--text-muted);
   border: 1.5px solid var(--border);
@@ -127,12 +127,13 @@ body {
 
 /* ===== PAGE CONTAINER ===== */
 .page {
-  max-width: 1060px;
+  max-width: 1280px;
   margin: 40px auto;
-  padding: 44px 48px;
+  padding: 44px 52px;
   background-color: var(--surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow);
+  font-size: 15px;
 }
 
 .page h1 {
@@ -163,7 +164,7 @@ body {
   flex-direction: column;
   gap: 6px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text);
 }
 
@@ -173,7 +174,7 @@ body {
   padding: 10px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   color: var(--text);
   background-color: var(--surface);
@@ -205,7 +206,7 @@ button {
   background-color: var(--primary);
   color: white;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   cursor: pointer;
   transition: background-color 0.15s, transform 0.1s, box-shadow 0.15s;
@@ -279,7 +280,7 @@ button:disabled {
   background-color: var(--success-light);
   color: #065F46;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
   border-radius: var(--radius);
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
@@ -293,7 +294,7 @@ button:disabled {
   background-color: var(--error-light);
   color: #991B1B;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
   border-radius: var(--radius);
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
@@ -318,7 +319,7 @@ button:disabled {
 .password-rules ul {
   margin: 0;
   padding-left: 18px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .password-rules li {
@@ -346,7 +347,7 @@ button:disabled {
   border: 1.5px solid rgba(99, 102, 241, 0.2);
   border-radius: var(--radius);
   margin-bottom: 24px;
-  font-size: 14px;
+  font-size: 15px;
   color: #4338CA;
   font-weight: 500;
 }
@@ -395,7 +396,7 @@ button:disabled {
 }
 
 .folder-card p {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-muted);
   margin-bottom: 8px;
 }
@@ -459,7 +460,7 @@ button:disabled {
 
 .folder-row-desc {
   margin: 0 22px 14px;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -510,7 +511,7 @@ button:disabled {
   padding: 9px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-full);
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   color: var(--text);
   background-color: var(--surface);
@@ -576,7 +577,7 @@ button:disabled {
   gap: 12px;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .student-row:last-child {
@@ -601,7 +602,7 @@ button:disabled {
   flex-direction: column;
   gap: 6px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .edit-folder-form input,
@@ -609,7 +610,7 @@ button:disabled {
   padding: 10px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   color: var(--text);
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -654,7 +655,7 @@ button:disabled {
   flex-direction: column;
   gap: 6px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .section-form input,
@@ -664,7 +665,7 @@ button:disabled {
   padding: 10px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   color: var(--text);
   outline: none;
@@ -784,7 +785,7 @@ button:disabled {
   flex-direction: column;
   gap: 6px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .section-edit-form input,
@@ -794,7 +795,7 @@ button:disabled {
   padding: 10px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   color: var(--text);
   background-color: var(--surface);
@@ -835,7 +836,7 @@ button:disabled {
   flex-direction: column;
   gap: 6px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .reading-form input,
@@ -849,7 +850,7 @@ button:disabled {
   padding: 10px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   color: var(--text);
   outline: none;
@@ -890,7 +891,7 @@ button:disabled {
 
 .reading-card h5 {
   margin: 0 0 6px 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text);
 }
@@ -898,7 +899,7 @@ button:disabled {
 .reading-preview {
   white-space: pre-wrap;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   margin: 0;
 }
@@ -986,7 +987,7 @@ button:disabled {
 
 .student-reading-card h6 {
   margin: 0 0 6px 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
 }
@@ -994,7 +995,7 @@ button:disabled {
 .student-reading-card p {
   white-space: pre-wrap;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
   margin: 0;
   line-height: 1.6;
 }
@@ -1043,7 +1044,7 @@ button:disabled {
 .modal-card p {
   margin-bottom: 28px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
 }
 
@@ -1361,7 +1362,7 @@ button:disabled {
 }
 
 .home-step p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.6;
   margin: 0;
@@ -1422,7 +1423,7 @@ button:disabled {
 }
 
 .home-role-list li {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-muted);
   line-height: 1.5;
   display: flex;
@@ -1490,7 +1491,7 @@ button:disabled {
 }
 
 .home-feature-item p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.6;
   margin: 0;
@@ -1539,7 +1540,7 @@ button:disabled {
 
 .dashboard-welcome p {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
   color: #4338CA;
 }
 
@@ -1548,7 +1549,7 @@ button:disabled {
   text-align: center;
   padding: 40px 20px;
   color: var(--text-light);
-  font-size: 14px;
+  font-size: 15px;
 }
 
 /* ===== READING DETAIL PAGE ===== */
@@ -1576,7 +1577,7 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text-muted);
   text-decoration: none;
@@ -1602,13 +1603,13 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .meta-label {
   font-weight: 600;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
   min-width: 100px;
   flex-shrink: 0;
 }
@@ -1653,7 +1654,7 @@ button:disabled {
 
 .placeholder-text {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-light);
   font-style: italic;
 }
@@ -1669,7 +1670,7 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   padding: 6px 14px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   font-family: inherit;
   background-color: var(--primary-light);
@@ -1726,14 +1727,14 @@ button:disabled {
 }
 
 .reading-glossary-term-header strong {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
 
 .reading-glossary-term p {
   margin: 0 0 4px 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -1761,7 +1762,7 @@ button:disabled {
 }
 
 .glossary-empty {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-light);
   margin: 8px 0 0;
 }
@@ -1779,7 +1780,7 @@ button:disabled {
   flex-direction: column;
   gap: 6px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .glossary-form input,
@@ -1789,7 +1790,7 @@ button:disabled {
   padding: 10px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   color: var(--text);
   background-color: var(--surface);
@@ -1829,13 +1830,13 @@ button:disabled {
 
 .glossary-term-card h5 {
   margin: 0 0 6px 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
 
 .glossary-term-definition {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.6;
   margin: 0 0 6px 0;
@@ -1876,7 +1877,7 @@ button:disabled {
 }
 
 .student-glossary-empty {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-light);
   margin: 0;
   font-style: italic;
@@ -1897,14 +1898,14 @@ button:disabled {
 
 .student-glossary-term-card strong {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 4px;
 }
 
 .student-glossary-term-card p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.5;
   margin: 0 0 4px 0;
@@ -1983,7 +1984,7 @@ button:disabled {
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   margin-bottom: 14px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -2023,7 +2024,7 @@ button:disabled {
 
 .template-download-btn::before {
   content: "↓";
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .template-download-btn:hover {
@@ -2035,12 +2036,12 @@ button:disabled {
   display: block;
   width: 100%;
   margin-bottom: 14px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text);
 }
 
 .import-summary {
-  font-size: 13px;
+  font-size: 14px;
   margin-bottom: 10px;
 }
 
@@ -2064,7 +2065,7 @@ button:disabled {
 .import-preview-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .import-preview-table th {
@@ -2172,7 +2173,7 @@ button:disabled {
 }
 
 .student-glossary-definition {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.6;
   margin: 0 0 4px 0;
@@ -2184,7 +2185,7 @@ button:disabled {
   padding: 8px 12px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 14px;
   font-family: inherit;
   color: var(--text);
   background-color: var(--surface);
@@ -2268,7 +2269,7 @@ button:disabled {
 }
 
 .reading-term-panel-hint {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-light);
   line-height: 1.7;
   max-width: 220px;
@@ -2316,7 +2317,7 @@ button:disabled {
 }
 
 .reading-term-panel-text {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text);
   line-height: 1.65;
   margin: 0;
@@ -2371,12 +2372,12 @@ button:disabled {
 .reading-term-panel-add-btn {
   width: 100%;
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .reading-term-panel-success {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--success);
   margin: 0;
@@ -2405,7 +2406,7 @@ button:disabled {
 
 .reading-term-panel-mastered-block p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: #065F46;
   font-weight: 600;
   line-height: 1.5;
@@ -2421,7 +2422,7 @@ button:disabled {
 
 .reading-term-panel-already-saved p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--primary-dark);
   font-weight: 500;
 }
@@ -2508,7 +2509,7 @@ button:disabled {
 }
 
 .reading-nav-btn {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--primary);
   text-decoration: none;
@@ -2605,7 +2606,7 @@ button:disabled {
   background-color: var(--primary-light);
   border: none;
   border-radius: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--primary-dark);
   cursor: pointer;
@@ -2636,7 +2637,7 @@ button:disabled {
 
 .personal-bloom-description {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.5;
 }
@@ -2674,7 +2675,7 @@ button:disabled {
 .personal-bloom-generate-btn {
   width: 100%;
   padding: 9px 16px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   background-color: var(--primary);
   color: white;
@@ -2710,7 +2711,7 @@ button:disabled {
 
 .bloom-activity-prompt {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text);
   line-height: 1.65;
 }
@@ -2797,7 +2798,7 @@ button:disabled {
 
 .practice-loading {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   font-style: italic;
   text-align: center;
@@ -2806,7 +2807,7 @@ button:disabled {
 
 .practice-empty-state {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-light);
   font-style: italic;
   text-align: center;
@@ -2828,6 +2829,14 @@ button:disabled {
     margin: 16px;
     padding: 24px 20px;
     border-radius: var(--radius-lg);
+  }
+
+  /* Flashcards page: on mobile use edge-to-edge with minimal margin */
+  .flashcards-page {
+    margin: 8px;
+    padding-top: 20px;
+    padding-left:  16px;
+    padding-right: 16px;
   }
 
   .home-hero-v2 {
@@ -2897,7 +2906,7 @@ button:disabled {
   padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text);
   background: var(--surface);
   box-sizing: border-box;
@@ -2949,7 +2958,731 @@ button:disabled {
 }
 
 .spanish-translation-text {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text);
   margin: 3px 0 5px;
+}
+
+/* ===================================================================
+   FLASHCARDS – Spaced Repetition Feature
+   =================================================================== */
+
+/* ── Page layout ─────────────────────────────────────────────────── */
+/* Flashcards page overrides the default .page constraints to be wider
+   and uses fluid padding so it adapts from mobile to ultrawide screens. */
+.flashcards-page {
+  max-width: 1280px;
+  padding-top: 32px;
+  /* Fluid horizontal padding: 20px on mobile → 56px on wide screens */
+  padding-left:  clamp(20px, 4vw, 56px);
+  padding-right: clamp(20px, 4vw, 56px);
+}
+
+.back-link {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.back-link:hover {
+  color: var(--primary);
+}
+
+/* ── Stats grid ──────────────────────────────────────────────────── */
+.flashcard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 160px));
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.flashcard-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.flashcard-stat-card--highlight {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.flashcard-stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.flashcard-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Review card ─────────────────────────────────────────────────── */
+.flashcard-review-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow);
+  max-width: 640px;
+}
+
+.flashcard-front,
+.flashcard-back {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flashcard-term {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.flashcard-context {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 10px 14px;
+  background: var(--surface-alt);
+  border-left: 3px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.retrieval-hint {
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.flashcard-answer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  padding: 16px 0 8px;
+}
+
+.spacing-info {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* ── Rating buttons ──────────────────────────────────────────────── */
+.rating-buttons {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.rating-again {
+  background: var(--error-light);
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.rating-again:hover:not(:disabled) {
+  background: #fca5a5;
+}
+
+.rating-hard {
+  background: var(--warning-light);
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.rating-hard:hover:not(:disabled) {
+  background: #fcd34d;
+}
+
+.rating-good {
+  background: var(--success-light);
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.rating-good:hover:not(:disabled) {
+  background: #6ee7b7;
+}
+
+.rating-easy {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border: 1px solid #a5b4fc;
+}
+
+.rating-easy:hover:not(:disabled) {
+  background: #a5b4fc;
+}
+
+/* ── Upcoming cards list ─────────────────────────────────────────── */
+.upcoming-flashcards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upcoming-flashcard-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.upcoming-word {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.upcoming-reading {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+.upcoming-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.upcoming-interval {
+  font-size: 13px;
+  color: var(--text-light);
+  display: block;
+}
+
+.upcoming-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.upcoming-page-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 32px;
+  height: 32px;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s;
+}
+.upcoming-page-btn:hover:not(:disabled) {
+  background: var(--bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.upcoming-page-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.upcoming-page-info {
+  font-size: 14px;
+  color: var(--text-muted);
+  min-width: 80px;
+  text-align: center;
+}
+
+/* ── Badges ──────────────────────────────────────────────────────── */
+.flashcard-overdue-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--error-light);
+  color: #b91c1c;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.flashcard-due-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+/* ── Reminder widget (Dashboard + Flashcards page) ───────────────── */
+.flashcard-reminder {
+  display: block;
+  padding: 14px 18px;
+  background: var(--primary-light);
+  border: 1px solid #c7d2fe;
+  border-radius: var(--radius);
+  font-size: 15px;
+  color: var(--primary-dark);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* ── Navbar link (matches the style of other navbar links exactly) ── */
+.flashcard-navbar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: inherit;
+  font-weight: inherit;
+  transition: color 0.15s;
+}
+
+.flashcard-navbar-link:hover {
+  color: var(--primary);
+}
+
+.flashcard-reminder-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.flashcard-reminder-badge--overdue {
+  background: var(--error);
+}
+
+/* ── Info notice (overdue reminder on page, not navbar) ──────────── */
+.flashcard-info-notice {
+  padding: 12px 16px;
+  background: var(--warning-light);
+  border: 1px solid #fcd34d;
+  border-radius: var(--radius);
+  font-size: 15px;
+  color: #92400e;
+  font-weight: 500;
+}
+
+/* ── Enrollment panel – split layout ─────────────────────────────── */
+.enroll-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  align-items: start;
+}
+
+.enroll-detail-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  min-height: 220px;
+  box-shadow: var(--shadow-sm);
+}
+
+.enroll-detail-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  color: var(--text-light);
+  font-size: 15px;
+  font-style: italic;
+  text-align: center;
+}
+
+.enroll-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Right: word list ────────────────────────────────────────────── */
+.enroll-term-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  max-height: 480px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.enroll-reading-group {
+  border-bottom: 1px solid var(--border);
+}
+
+.enroll-reading-group:last-child {
+  border-bottom: none;
+}
+
+.enroll-reading-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 9px 12px 7px;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.enroll-term-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text);
+  transition: background 0.12s;
+}
+
+.enroll-term-item:last-child {
+  border-bottom: none;
+}
+
+.enroll-term-item:hover {
+  background: var(--surface-alt);
+}
+
+.enroll-term-item--selected {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.enroll-term-item--added {
+  color: var(--text-muted);
+}
+
+.enroll-term-word {
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.enroll-term-status {
+  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-light);
+  line-height: 1;
+}
+
+.enroll-term-status--added {
+  color: var(--success);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+/* ── Flashcards: tablet (≤ 900px) ──────────────────────────────── */
+@media (max-width: 900px) {
+  /* Stats: 3 per row on tablet */
+  .flashcard-stats-grid {
+    grid-template-columns: repeat(3, minmax(120px, 160px));
+  }
+
+  /* Enrollment split: give the list slightly more space */
+  .enroll-split-layout {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+/* ── Flashcards: small tablet / large phone (≤ 700px) ─────────── */
+@media (max-width: 700px) {
+  .enroll-split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .enroll-term-list {
+    max-height: 320px;
+  }
+
+  /* Folder tabs wrap instead of overflow */
+  .enroll-folder-tabs {
+    gap: 6px;
+  }
+}
+
+/* ── Flashcards: phone (≤ 600px) ──────────────────────────────── */
+@media (max-width: 600px) {
+  .flashcard-stats-grid {
+    grid-template-columns: repeat(2, minmax(110px, 150px));
+  }
+
+  .flashcard-review-card {
+    padding: 16px 14px;
+  }
+
+  .flashcard-term {
+    font-size: 18px;
+  }
+
+  /* Upcoming pagination: tighter spacing */
+  .upcoming-page-info {
+    font-size: 12px;
+    min-width: 60px;
+  }
+
+  /* MC options: full width on small screens */
+  .mc-options {
+    gap: 8px;
+  }
+}
+
+/* ===================================================================
+   FLASHCARD CARD TYPE BADGES
+   =================================================================== */
+
+.mc-type-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.mc-type-badge--definition {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+}
+
+/* ===================================================================
+   MULTIPLE CHOICE CARD
+   =================================================================== */
+
+.flashcard-review-card--mc {
+  border-color: #c7d2fe;
+}
+
+/* ── Options list ────────────────────────────────────────────── */
+.mc-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.mc-option {
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  font-weight: 500;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.mc-option:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.mc-option--correct {
+  border-color: var(--success);
+  background: var(--success-light);
+  color: #065f46;
+}
+
+.mc-option--wrong {
+  border-color: var(--error);
+  background: var(--error-light);
+  color: #b91c1c;
+  text-decoration: line-through;
+}
+
+.mc-option--disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+/* ── Feedback lines ──────────────────────────────────────────── */
+.mc-feedback {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 10px 0 0;
+}
+
+.mc-feedback--correct {
+  color: var(--success);
+}
+
+.mc-feedback--wrong {
+  color: var(--error);
+}
+
+/* ===================================================================
+   ENROLLMENT PANEL — search input + filter tabs + list body
+   =================================================================== */
+
+.enroll-search {
+  padding: 8px 8px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.enroll-search-input {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.enroll-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.enroll-search-input::placeholder {
+  color: var(--text-light);
+}
+
+/* ── Folder selector (shown only when student has multiple folders) ── */
+.enroll-folder-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 8px 6px;
+  border-bottom: 1px solid var(--border);
+  background: #f1f2fd;   /* slightly tinted so it reads as a separate layer */
+}
+
+.enroll-folder-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+  max-width: 160px;
+}
+
+.enroll-folder-tab-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 110px;
+}
+
+.enroll-folder-tab-count {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  padding: 1px 5px;
+  flex-shrink: 0;
+  color: var(--text);
+}
+
+.enroll-folder-tab:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.enroll-folder-tab--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.enroll-folder-tab--active .enroll-folder-tab-count {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+}
+
+.enroll-filter-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+.enroll-filter-tab {
+  padding: 3px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.enroll-filter-tab:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.enroll-filter-tab--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* Scrollable body — separate from header so header stays sticky */
+.enroll-term-list-body {
+  overflow-y: auto;
+  max-height: 360px;
 }

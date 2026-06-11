@@ -4,6 +4,7 @@ import {
   updateMyPersonalGlossaryTerm,
   deleteMyPersonalGlossaryTerm,
 } from '../../api/studentGlossaryApi';
+import { ensureFlashcardStateForMyTerm } from '../../api/flashcardsApi';
 import ConfirmModal from '../ui/ConfirmModal';
 import { SourceBadge, TranslationSourceBadge } from './ReadingTermPanel';
 import PersonalBloomPractice from './PersonalBloomPractice';
@@ -14,10 +15,12 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded, reading
   const [terms,      setTerms]      = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState(null);
-  const [savingId,   setSavingId]   = useState(null);
-  const [deleteId,   setDeleteId]   = useState(null);
-  const [noteValues, setNoteValues] = useState({});
-  const [successId,  setSuccessId]  = useState(null);
+  const [savingId,       setSavingId]       = useState(null);
+  const [deleteId,       setDeleteId]       = useState(null);
+  const [noteValues,     setNoteValues]     = useState({});
+  const [successId,      setSuccessId]      = useState(null);
+  const [flashcardIds,   setFlashcardIds]   = useState(new Set());
+  const [flashcardAdding, setFlashcardAdding] = useState(null);
 
   // Notify parent whenever the term list changes (load, toggle mastered, delete)
   useEffect(() => {
@@ -96,6 +99,18 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded, reading
   };
 
   const termToDelete = terms.find((t) => t.id === deleteId);
+
+  const handleAddToFlashcards = async (term) => {
+    setFlashcardAdding(term.id);
+    try {
+      await ensureFlashcardStateForMyTerm(term.id);
+      setFlashcardIds((prev) => new Set([...prev, term.id]));
+    } catch (err) {
+      setError(err.message || 'Could not add to flashcards.');
+    } finally {
+      setFlashcardAdding(null);
+    }
+  };
 
   return (
     <div className="student-glossary-box">
@@ -197,6 +212,21 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded, reading
                 >
                   Remove
                 </button>
+
+                {flashcardIds.has(term.id) ? (
+                  <span className="flashcard-due-badge" style={{ alignSelf: 'center' }}>
+                    In flashcards
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="small-button secondary-button"
+                    onClick={() => handleAddToFlashcards(term)}
+                    disabled={flashcardAdding === term.id}
+                  >
+                    {flashcardAdding === term.id ? 'Adding…' : 'Add to flashcards'}
+                  </button>
+                )}
 
                 {successId === term.id && (
                   <span style={{ fontSize: '13px', color: 'var(--success)', fontWeight: '600', alignSelf: 'center' }}>
