@@ -14,6 +14,8 @@ import TeacherFoldersPage from "../pages/TeacherFoldersPage";
 import JoinFolderPage from "../pages/JoinFolderPage";
 import ReadingDetailPage from '../pages/ReadingDetailPage';
 import StudentFlashcardsPage from '../pages/StudentFlashcardsPage';
+import StudentAnalyticsPage from '../pages/StudentAnalyticsPage';
+import TeacherAnalyticsPage from '../pages/TeacherAnalyticsPage';
 
 function AppRouter() {
   return (
@@ -77,6 +79,24 @@ function AppRouter() {
           element={
             <ProtectedRoute allowedRole="student">
               <StudentFlashcardsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/student/analytics"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <StudentAnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/teacher/analytics"
+          element={
+            <ProtectedRoute allowedRole="teacher">
+              <TeacherAnalyticsPage />
             </ProtectedRoute>
           }
         />

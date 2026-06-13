@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { useAuth } from "../auth/AuthContext";
 import {
@@ -20,6 +21,7 @@ import FolderSectionsManager from "../components/folders/FolderSectionsManager";
 
 function TeacherFoldersPage() {
   const { profile } = useAuth();
+  const location    = useLocation();
 
   const [organization, setOrganization] = useState(null);
   const [folders, setFolders] = useState([]);
@@ -72,6 +74,17 @@ function TeacherFoldersPage() {
   useEffect(() => {
     loadData();
   }, [profile?.id]);
+
+  // Auto-expand and scroll to a folder when navigated from dashboard
+  useEffect(() => {
+    const targetId = location.state?.openFolderId;
+    if (!targetId || folders.length === 0) return;
+    setExpandedFolders((prev) => new Set([...prev, targetId]));
+    setTimeout(() => {
+      const el = document.getElementById(`folder-${targetId}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  }, [folders, location.state?.openFolderId]);
 
   function clearMessages() {
     setOrganizationMessage("");
@@ -403,7 +416,7 @@ function TeacherFoldersPage() {
               const showRequests = visibleRequestsFolderId === folder.id;
 
               return (
-                <article key={folder.id} className="folder-row-card">
+                <article key={folder.id} id={`folder-${folder.id}`} className="folder-row-card">
                   {/* Header — siempre visible */}
                   <div className="folder-row-header">
                     <div className="folder-row-info">

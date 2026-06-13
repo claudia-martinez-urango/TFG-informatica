@@ -28,6 +28,7 @@ function Navbar() {
         {user && profile?.role === "student" && (
           <>
             <Link to="/student/dashboard">Dashboard</Link>
+            <Link to="/student/analytics">Analytics</Link>
             <Link to="/join">Join Folder</Link>
             <FlashcardReminderBadge />
           </>
@@ -37,6 +38,7 @@ function Navbar() {
           <>
             <Link to="/teacher/dashboard">Dashboard</Link>
             <Link to="/teacher/folders">Folders</Link>
+            <Link to="/teacher/analytics">Analytics</Link>
           </>
         )}
 
