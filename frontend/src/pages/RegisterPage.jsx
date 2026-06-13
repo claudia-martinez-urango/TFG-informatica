@@ -47,7 +47,7 @@ function RegisterPage() {
           last_name: lastName,
           role,
         },
-        emailRedirectTo: "http://localhost:5173/login",
+        emailRedirectTo: `${window.location.origin}/login`,
       },
     });
 
