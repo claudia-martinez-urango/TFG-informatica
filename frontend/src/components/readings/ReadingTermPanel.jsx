@@ -5,6 +5,7 @@ import {
 } from '../../api/studentGlossaryApi';
 import { fetchDictionaryDefinition, fetchWiktionaryDefinition } from '../../api/dictionaryApi';
 import { getContextAwareSpanishTranslation } from '../../api/contextualTranslationApi';
+import { pronounceWord } from '../../utils/pronunciation';
 
 function SkeletonBlock({ width = '100%', height = 14 }) {
   return <div className="term-panel-skeleton" style={{ width, height }} />;
@@ -39,6 +40,10 @@ export function TranslationSourceBadge({ source }) {
 //   savedTerm            — matching entry from the student's personal glossary, or null
 //   isTranslationEnabled — controlled by the teacher; shows Spanish translation when true
 //   onTermAdded          — callback fired after a successful add/update
+const pronunciationSupported =
+  typeof window !== 'undefined' &&
+  ('speechSynthesis' in window || typeof Audio !== 'undefined');
+
 function ReadingTermPanel({
   readingId,
   selectedText,
@@ -55,6 +60,7 @@ function ReadingTermPanel({
   const [dictResult,      setDictResult]      = useState(null);
   const [translationData, setTranslationData] = useState(null); // { translation, source, confidence }
   const [translationEdit, setTranslationEdit] = useState('');   // editable field value
+  const [speaking,        setSpeaking]        = useState(false);
 
   useEffect(() => {
     if (!selectedText) {
@@ -203,9 +209,25 @@ function ReadingTermPanel({
   return (
     <div className={`reading-term-panel${isMastered ? ' reading-term-panel-is-mastered' : ''}`}>
 
-      {/* ── Header: term + saved/mastered badge ── */}
+      {/* ── Header: term + pronunciation + saved/mastered badge ── */}
       <div className="reading-term-panel-header">
-        <h3 className="reading-term-panel-term">&ldquo;{selectedText}&rdquo;</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 className="reading-term-panel-term">&ldquo;{selectedText}&rdquo;</h3>
+          {isTranslationEnabled && pronunciationSupported && !loading && (
+            <button
+              type="button"
+              className={`pronunciation-btn${speaking ? ' pronunciation-btn--speaking' : ''}`}
+              title="Listen to pronunciation"
+              aria-label={`Pronounce ${selectedText}`}
+              onClick={() => {
+                setSpeaking(true);
+                pronounceWord(selectedText).finally(() => setTimeout(() => setSpeaking(false), 800));
+              }}
+            >
+              🔊
+            </button>
+          )}
+        </div>
 
         {isMastered && (
           <span className="mastered-badge" style={{ marginTop: '6px', display: 'inline-block' }}>

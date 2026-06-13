@@ -8,6 +8,8 @@ import {
 } from '../api/analyticsApi';
 import DashboardStatCard from '../components/dashboard/DashboardStatCard';
 import DashboardBarChart from '../components/dashboard/DashboardBarChart';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const BLOOM_LABELS = {
   remember:   'Remember',
@@ -57,6 +59,27 @@ function masteryBadgeClass(rate) {
 function formatDate(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Groups flat terms into folder → reading buckets, preserving insertion order
+function groupTermsByFolder(terms) {
+  const folderOrder = [];
+  const folderMap   = new Map();
+  for (const t of terms) {
+    const fKey = t.folder_name || '';
+    if (!folderMap.has(fKey)) {
+      folderMap.set(fKey, { folder_name: t.folder_name, readings: [] });
+      folderOrder.push(fKey);
+    }
+    const folder = folderMap.get(fKey);
+    let reading = folder.readings.find(r => r.reading_id === t.reading_id);
+    if (!reading) {
+      reading = { reading_id: t.reading_id, reading_title: t.reading_title, section_name: t.section_name, terms: [] };
+      folder.readings.push(reading);
+    }
+    reading.terms.push(t);
+  }
+  return folderOrder.map(key => folderMap.get(key));
 }
 
 function StudentAnalyticsPage() {
@@ -154,6 +177,109 @@ function StudentAnalyticsPage() {
   );
 
   const hasActiveFilter = selectedFolder || selectedSection || selectedReading;
+
+  function handleExportPdf() {
+    const doc           = new jsPDF();
+    const folderGroups  = groupTermsByFolder(terms);
+    const totalReadings = folderGroups.reduce((n, f) => n + f.readings.length, 0);
+    const multiFolder   = folderGroups.length > 1;
+
+    // ── Cover header ─────────────────────────────────────────────
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(99, 102, 241);
+    doc.text('My Vocabulary', 14, 18);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    const filterLabel =
+      selectedReading ? readings.find(r => r.id === selectedReading)?.title :
+      selectedSection ? sections.find(s => s.id === selectedSection)?.name  :
+      selectedFolder  ? folders.find(f => f.id === selectedFolder)?.name    :
+      'All folders';
+    doc.text(`Filter: ${filterLabel}`, 14, 26);
+    doc.text(
+      `Exported: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}  ·  ${terms.length} terms across ${totalReadings} reading${totalReadings !== 1 ? 's' : ''}`,
+      14, 32
+    );
+    doc.setTextColor(0);
+
+    // ── Folders → readings ────────────────────────────────────────
+    let y = 40;
+
+    for (let fi = 0; fi < folderGroups.length; fi++) {
+      const folder = folderGroups[fi];
+
+      // Folder separator bar — only when multiple folders present
+      if (multiFolder) {
+        doc.setFillColor(99, 102, 241);
+        doc.rect(14, y, 182, 9, 'F');
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255);
+        doc.text(folder.folder_name || '', 18, y + 6.2);
+        doc.setTextColor(0);
+        y += 14;
+      }
+
+      for (let ri = 0; ri < folder.readings.length; ri++) {
+        const g = folder.readings[ri];
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30);
+        doc.text(g.reading_title, 14, y);
+
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(120);
+        const breadcrumb = multiFolder
+          ? `${folder.folder_name}  >  ${g.section_name}`
+          : g.section_name || '';
+        doc.text(breadcrumb, 14, y + 5);
+        doc.setTextColor(0);
+
+        autoTable(doc, {
+          startY: y + 9,
+          head: [['Word', 'Definition', 'Status', 'Added']],
+          body: g.terms.map(t => [
+            t.selected_text,
+            t.definition || '—',
+            t.is_mastered ? 'Mastered' : 'To Learn',
+            formatDate(t.created_at),
+          ]),
+          styles:       { fontSize: 9, cellPadding: 3 },
+          headStyles:   { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold' },
+          columnStyles: {
+            0: { fontStyle: 'bold', cellWidth: 36 },
+            2: { cellWidth: 24 },
+            3: { cellWidth: 26 },
+          },
+          didParseCell(data) {
+            if (data.section === 'body' && data.column.index === 2) {
+              data.cell.styles.textColor = data.cell.raw === 'Mastered' ? [16, 185, 129] : [245, 158, 11];
+              data.cell.styles.fontStyle = 'bold';
+            }
+          },
+        });
+
+        y = doc.lastAutoTable.finalY + 12;
+
+        const isLast = fi === folderGroups.length - 1 && ri === folder.readings.length - 1;
+        if (!isLast && y > 250) {
+          doc.addPage();
+          y = 16;
+        }
+      }
+
+      if (fi < folderGroups.length - 1 && y <= 250) {
+        y += 4;
+      }
+    }
+
+    doc.save('my_vocabulary.pdf');
+  }
 
   function onProgressBarClick(item) {
     if (!selectedFolder) {
@@ -315,10 +441,20 @@ function StudentAnalyticsPage() {
       {/* ── Terms table ───────────────────────────────────────── */}
       {terms.length > 0 && (
         <section className="dashboard-section">
-          <h2 className="dashboard-section-title">
-            My Terms
-            <span className="analytics-count-badge">{terms.length}</span>
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h2 className="dashboard-section-title" style={{ margin: 0 }}>
+              My Terms
+              <span className="analytics-count-badge">{terms.length}</span>
+            </h2>
+            <button
+              type="button"
+              className="glossary-export-btn"
+              onClick={handleExportPdf}
+              title="Download vocabulary grouped by reading"
+            >
+              ↓ Export PDF
+            </button>
+          </div>
           <div className="analytics-table-wrapper">
             <table className="analytics-table">
               <thead>

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import FlashcardReminderBadge from "../flashcards/FlashcardReminderBadge";
+import NotificationBell from "../ui/NotificationBell";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -47,6 +48,8 @@ function Navbar() {
             {profile.first_name} {profile.last_name}
           </span>
         )}
+
+        {user && <NotificationBell />}
 
         {user && (
           <button type="button" className="logout-button" onClick={handleLogout}>

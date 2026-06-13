@@ -126,7 +126,9 @@ function HomePage() {
               <li>Publish curated readings with glossary terms</li>
               <li>Control student access and content visibility</li>
               <li>Enable Spanish translations per reading</li>
-              <li>Share folders via unique code or QR</li>
+              <li>Share folders via unique code or QR scan</li>
+              <li>View analytics on student mastery and word difficulty</li>
+              <li>Receive real-time notifications for join requests</li>
             </ul>
           </div>
           <div className="home-role-card home-role-student">
@@ -137,7 +139,11 @@ function HomePage() {
               <li>Read and select any word or phrase</li>
               <li>Get instant dictionary definitions</li>
               <li>Build a personal glossary per reading</li>
-              <li>Track which words you have mastered</li>
+              <li>Hear native pronunciation of selected words</li>
+              <li>Complete AI-powered Bloom taxonomy activities</li>
+              <li>Review vocabulary with spaced repetition flashcards</li>
+              <li>Export your vocabulary as a formatted PDF</li>
+              <li>Track mastery and view personal analytics</li>
             </ul>
           </div>
         </div>
@@ -145,9 +151,9 @@ function HomePage() {
 
       {/* ── Key features ── */}
       <section className="home-section home-features-v2">
-        <h2 className="home-section-title">Key features</h2>
+        <h2 className="home-section-title">Everything you need</h2>
         <p className="home-section-subtitle">
-          Designed to make vocabulary learning effortless and effective
+          From instant lookups to AI-powered practice — all in one platform
         </p>
         <div className="home-features-grid">
           <div className="home-feature-item">
@@ -195,6 +201,78 @@ function HomePage() {
               <p>
                 Students mark words as mastered when they feel confident.
                 Visual badges distinguish saved from fully mastered terms.
+              </p>
+            </div>
+          </div>
+          <div className="home-feature-item">
+            <div className="home-feature-icon-wrap home-feature-icon-teal">
+              <span>🎴</span>
+            </div>
+            <div>
+              <h4>Spaced repetition flashcards</h4>
+              <p>
+                Save glossary words to flashcards and review them using a
+                spaced repetition algorithm that prioritises terms due for practice.
+              </p>
+            </div>
+          </div>
+          <div className="home-feature-item">
+            <div className="home-feature-icon-wrap home-feature-icon-pink">
+              <span>🧠</span>
+            </div>
+            <div>
+              <h4>AI Bloom activities</h4>
+              <p>
+                Each saved term gets AI-generated practice questions covering
+                all six Bloom's taxonomy cognitive levels — from recall to creation.
+              </p>
+            </div>
+          </div>
+          <div className="home-feature-item">
+            <div className="home-feature-icon-wrap home-feature-icon-red">
+              <span>🔊</span>
+            </div>
+            <div>
+              <h4>Native pronunciation</h4>
+              <p>
+                Hear selected words pronounced by a native speaker via audio.
+                Available for translation-enabled readings to reinforce English phonics.
+              </p>
+            </div>
+          </div>
+          <div className="home-feature-item">
+            <div className="home-feature-icon-wrap home-feature-icon-yellow">
+              <span>📊</span>
+            </div>
+            <div>
+              <h4>Analytics dashboard</h4>
+              <p>
+                Teachers see which words are most difficult. Students track their
+                mastery rate across folders, sections, and individual readings.
+              </p>
+            </div>
+          </div>
+          <div className="home-feature-item">
+            <div className="home-feature-icon-wrap home-feature-icon-indigo">
+              <span>📄</span>
+            </div>
+            <div>
+              <h4>PDF vocabulary export</h4>
+              <p>
+                Download a formatted PDF of saved vocabulary, grouped by folder
+                and reading, with mastery status and definitions included.
+              </p>
+            </div>
+          </div>
+          <div className="home-feature-item">
+            <div className="home-feature-icon-wrap home-feature-icon-cyan">
+              <span>🔔</span>
+            </div>
+            <div>
+              <h4>Real-time notifications</h4>
+              <p>
+                Teachers are notified instantly when students request to join a
+                folder. Students hear back the moment their request is approved.
               </p>
             </div>
           </div>

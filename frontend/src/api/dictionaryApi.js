@@ -36,12 +36,20 @@ export async function fetchDictionaryDefinition(term) {
 
     if (!defObj?.definition) return { found: false };
 
+    // Prefer US English audio; fall back to any available audio URL
+    const phonetics = entry.phonetics ?? [];
+    const audioUrl =
+      phonetics.find(p => p.audio?.includes('-us'))?.audio ||
+      phonetics.find(p => p.audio)?.audio ||
+      null;
+
     return {
       found:        true,
       word:         entry.word ?? word,
       definition:   defObj.definition,
       partOfSpeech: meaning?.partOfSpeech ?? null,
       example:      defObj.example ?? null,
+      audioUrl,
     };
   } catch {
     return { found: false };

@@ -8,6 +8,11 @@ import { ensureFlashcardStateForMyTerm } from '../../api/flashcardsApi';
 import ConfirmModal from '../ui/ConfirmModal';
 import { SourceBadge, TranslationSourceBadge } from './ReadingTermPanel';
 import PersonalBloomPractice from './PersonalBloomPractice';
+import { pronounceWord } from '../../utils/pronunciation';
+
+const pronunciationSupported =
+  typeof window !== 'undefined' &&
+  ('speechSynthesis' in window || typeof Audio !== 'undefined');
 
 // onTermsLoaded is called whenever the term list changes so the parent
 // (ReadingDetailPage) can check if the current panel selection is already saved.
@@ -15,6 +20,7 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded, reading
   const [terms,      setTerms]      = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState(null);
+  const [speakingId, setSpeakingId] = useState(null);
   const [savingId,       setSavingId]       = useState(null);
   const [deleteId,       setDeleteId]       = useState(null);
   const [noteValues,     setNoteValues]     = useState({});
@@ -130,7 +136,25 @@ function StudentPersonalGlossary({ readingId, refreshKey, onTermsLoaded, reading
             <div key={term.id} className="student-glossary-card">
 
               <div className="student-glossary-term-header">
-                <span className="student-glossary-term">{term.selected_text}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="student-glossary-term">{term.selected_text}</span>
+                  {term.spanish_translation && pronunciationSupported && (
+                    <button
+                      type="button"
+                      className={`pronunciation-btn${speakingId === term.id ? ' pronunciation-btn--speaking' : ''}`}
+                      title="Listen to pronunciation"
+                      aria-label={`Pronounce ${term.selected_text}`}
+                      onClick={() => {
+                        setSpeakingId(term.id);
+                        pronounceWord(term.selected_text).finally(() =>
+                          setTimeout(() => setSpeakingId(null), 800)
+                        );
+                      }}
+                    >
+                      🔊
+                    </button>
+                  )}
+                </div>
                 <span className={term.is_mastered ? 'mastered-badge' : 'not-mastered-badge'}>
                   {term.is_mastered ? 'Mastered' : 'Learning'}
                 </span>

@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.107.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "mammoth": "^1.12.0",
     "pdfjs-dist": "^6.0.227",
     "qrcode.react": "^4.2.0",
