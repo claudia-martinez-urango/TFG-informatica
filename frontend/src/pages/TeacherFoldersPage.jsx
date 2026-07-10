@@ -18,6 +18,7 @@ import {
   updateOrganization,
 } from "../api/foldersApi";
 import FolderSectionsManager from "../components/folders/FolderSectionsManager";
+import QuickAddReadingModal from "../components/folders/QuickAddReadingModal";
 
 function TeacherFoldersPage() {
   const { profile } = useAuth();
@@ -45,6 +46,10 @@ function TeacherFoldersPage() {
   const [editingFolderDescription, setEditingFolderDescription] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [showQuickAddReading, setShowQuickAddReading] = useState(false);
+  const [quickAddMessage, setQuickAddMessage] = useState("");
+  const [lastCreatedReadingLocation, setLastCreatedReadingLocation] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [organizationMessage, setOrganizationMessage] = useState("");
@@ -299,6 +304,17 @@ function TeacherFoldersPage() {
     }
   }
 
+  function handleQuickReadingCreated({ folderId, sectionId }) {
+    setShowQuickAddReading(false);
+    setQuickAddMessage("Reading created successfully. It is hidden from students by default.");
+    setLastCreatedReadingLocation({ folderId, sectionId });
+    setExpandedFolders((prev) => new Set([...prev, folderId]));
+    setTimeout(() => {
+      const el = document.getElementById(`folder-${folderId}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+  }
+
   const filteredFolders = folders.filter((f) =>
     f.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -386,16 +402,29 @@ function TeacherFoldersPage() {
       <section className="section">
         <div className="folder-list-header">
           <h2>Your folders</h2>
-          {folders.length > 0 && (
-            <input
-              type="search"
-              className="folder-search-input"
-              placeholder="Search by name…"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          )}
+          <div className="folder-list-header-actions">
+            {folders.length > 0 && (
+              <input
+                type="search"
+                className="folder-search-input"
+                placeholder="Search by name…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            )}
+            {folders.length > 0 && (
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => setShowQuickAddReading(true)}
+              >
+                + Add Reading
+              </button>
+            )}
+          </div>
         </div>
+
+        {quickAddMessage && <p className="success">{quickAddMessage}</p>}
 
         {folders.length === 0 ? (
           <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>No folders created yet.</p>
@@ -601,7 +630,14 @@ function TeacherFoldersPage() {
                             </div>
                           )}
 
-                          <FolderSectionsManager folderId={folder.id} />
+                          <FolderSectionsManager
+                            folderId={folder.id}
+                            autoOpenSectionId={
+                              lastCreatedReadingLocation?.folderId === folder.id
+                                ? lastCreatedReadingLocation.sectionId
+                                : undefined
+                            }
+                          />
                         </>
                       )}
                     </div>
@@ -612,6 +648,14 @@ function TeacherFoldersPage() {
           </div>
         )}
       </section>
+
+      {showQuickAddReading && (
+        <QuickAddReadingModal
+          folders={folders}
+          onClose={() => setShowQuickAddReading(false)}
+          onCreated={handleQuickReadingCreated}
+        />
+      )}
     </main>
   );
 }

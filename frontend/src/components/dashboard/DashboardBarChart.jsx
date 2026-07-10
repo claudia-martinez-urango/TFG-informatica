@@ -1,3 +1,40 @@
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+  ResponsiveContainer,
+} from 'recharts';
+
+const COLOR_VARS = {
+  primary: 'var(--primary)',
+  success: 'var(--success)',
+  warning: 'var(--warning)',
+  info: '#38bdf8',
+  muted: 'var(--text-light)',
+};
+
+const ROW_HEIGHT = 40;
+
+function formatValue(raw, unit) {
+  if (unit === '%') return `${raw !== null && raw !== undefined ? raw : '—'}%`;
+  return `${raw}${unit ? ` ${unit}` : ''}`;
+}
+
+function CustomTooltip({ active, payload, unit }) {
+  if (!active || !payload || payload.length === 0) return null;
+  const item = payload[0].payload;
+
+  return (
+    <div className="bar-chart-tooltip">
+      <strong>{item.__label}</strong>
+      <span>{formatValue(item.__value, unit)}</span>
+    </div>
+  );
+}
+
 function DashboardBarChart({ data, labelKey, valueKey, maxValue, unit, color, emptyMessage, onBarClick }) {
   if (!data || data.length === 0) {
     return (
@@ -9,43 +46,58 @@ function DashboardBarChart({ data, labelKey, valueKey, maxValue, unit, color, em
 
   const max = maxValue ?? Math.max(...data.map((d) => d[valueKey] ?? 0), 1);
   const clickable = typeof onBarClick === 'function';
+  const fill = COLOR_VARS[color] || COLOR_VARS.primary;
+
+  const chartData = data.map((item) => ({
+    __label: item[labelKey] ?? '—',
+    __value: item[valueKey] ?? 0,
+    __original: item,
+  }));
 
   return (
     <div className="bar-chart">
-      {data.map((item, i) => {
-        const raw     = item[valueKey] ?? 0;
-        const pct     = max > 0 ? Math.min(100, Math.round((raw / max) * 100)) : 0;
-        const label   = item[labelKey] ?? '—';
-        const display = unit === '%'
-          ? `${raw !== null ? raw : '—'}%`
-          : `${raw}${unit ? ` ${unit}` : ''}`;
-
-        return (
-          <div
-            key={i}
-            className={`bar-chart-row${clickable ? ' bar-chart-row--clickable' : ''}`}
-            onClick={clickable ? () => onBarClick(item) : undefined}
-            role={clickable ? 'button' : undefined}
-            tabIndex={clickable ? 0 : undefined}
-            onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') onBarClick(item); } : undefined}
+      <ResponsiveContainer width="100%" height={chartData.length * ROW_HEIGHT + 20}>
+        <BarChart
+          data={chartData}
+          layout="vertical"
+          margin={{ top: 4, right: 40, bottom: 4, left: 4 }}
+          barCategoryGap={12}
+        >
+          <XAxis type="number" domain={[0, max]} hide />
+          <YAxis
+            type="category"
+            dataKey="__label"
+            width={150}
+            tick={{ fontSize: 12, fontWeight: 600, fill: 'var(--text-muted)' }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Tooltip
+            content={<CustomTooltip unit={unit} />}
+            cursor={{ fill: 'var(--surface-alt)' }}
+          />
+          <Bar
+            dataKey="__value"
+            radius={[999, 999, 999, 999]}
+            label={{
+              position: 'right',
+              formatter: (value) => formatValue(value, unit),
+              fill: 'var(--text-muted)',
+              fontSize: 11,
+              fontWeight: 700,
+            }}
           >
-            <div className="bar-chart-label" title={label}>{label}</div>
-            <div className="bar-chart-track">
-              <div
-                className={`bar-chart-bar bar-chart-bar--${color || 'primary'}`}
-                style={{ width: `${Math.max(pct, raw > 0 ? 2 : 0)}%` }}
-              >
-                {pct > 18 && (
-                  <span className="bar-chart-bar-value">{display}</span>
-                )}
-              </div>
-            </div>
-            <span className="bar-chart-out-value" aria-label={display}>
-              {pct <= 18 ? display : ''}
-            </span>
-          </div>
-        );
-      })}
+            {chartData.map((entry, index) => (
+              <Cell
+                key={index}
+                fill={fill}
+                cursor={clickable ? 'pointer' : 'default'}
+                onClick={clickable ? () => onBarClick(entry.__original) : undefined}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

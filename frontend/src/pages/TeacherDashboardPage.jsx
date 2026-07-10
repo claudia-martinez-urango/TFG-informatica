@@ -24,7 +24,7 @@ function formatDate(dateStr) {
 }
 
 function TeacherDashboardPage() {
-  const { profile } = useAuth();
+  const { profile, isFirstLogin } = useAuth();
 
   const [overview,       setOverview]       = useState(null);
   const [folderOverview, setFolderOverview] = useState([]);
@@ -122,7 +122,7 @@ function TeacherDashboardPage() {
       {/* ── Hero ─────────────────────────────────────────────── */}
       <div className="dashboard-hero">
         <div className="dashboard-hero-content">
-          <h2>Welcome back, {profile?.first_name} {profile?.last_name}</h2>
+          <h2>{isFirstLogin ? 'Welcome' : 'Welcome back'}, {profile?.first_name} {profile?.last_name}</h2>
           <p>Manage your folders, readings and student learning activity.</p>
         </div>
       </div>

@@ -28,6 +28,16 @@ const SORT_MODES = [
   { key: 'mastered',  label: 'Best Mastered' },
 ];
 
+const MASTERY_BUCKETS = [
+  { key: 'zero', label: '0% (not mastered)', test: (r) => r === 0 },
+  { key: 'low',   label: '1–29%',            test: (r) => r > 0  && r < 30  },
+  { key: 'mid',   label: '30–69%',           test: (r) => r >= 30 && r < 70 },
+  { key: 'high',  label: '70–99%',           test: (r) => r >= 70 && r < 100 },
+  { key: 'full',  label: '100% (mastered)',  test: (r) => r === 100 },
+];
+
+const BUCKET_PAGE_SIZE = 15;
+
 function uniqueBy(arr, key) {
   const seen = new Set();
   return arr.filter(item => {
@@ -66,6 +76,9 @@ function TeacherAnalyticsPage() {
   const [sortMode,         setSortMode]         = useState('difficult');
   const [loading,          setLoading]          = useState(true);
   const [dataLoading,      setDataLoading]      = useState(false);
+
+  const [selectedBucket,     setSelectedBucket]     = useState(null);
+  const [bucketPage,         setBucketPage]         = useState(0);
 
   const [selectedWord,       setSelectedWord]       = useState(null);
   const [wordDetail,         setWordDetail]         = useState([]);
@@ -197,10 +210,34 @@ function TeacherAnalyticsPage() {
   }
 
   // ── Derived chart / table data ───────────────────────────────
-  const difficultWords = useMemo(
-    () => [...wordStats].sort((a, b) => (a.mastery_rate ?? 101) - (b.mastery_rate ?? 101)).slice(0, 12),
+  const masteryBucketData = useMemo(
+    () => MASTERY_BUCKETS.map((bucket) => ({
+      key:   bucket.key,
+      label: bucket.label,
+      count: wordStats.filter((w) => bucket.test(w.mastery_rate ?? 0)).length,
+    })),
     [wordStats]
   );
+
+  const bucketWords = useMemo(() => {
+    if (!selectedBucket) return [];
+    const bucket = MASTERY_BUCKETS.find((b) => b.key === selectedBucket);
+    if (!bucket) return [];
+    return [...wordStats]
+      .filter((w) => bucket.test(w.mastery_rate ?? 0))
+      .sort((a, b) => b.students_saved - a.students_saved);
+  }, [wordStats, selectedBucket]);
+
+  const totalBucketPages = Math.max(1, Math.ceil(bucketWords.length / BUCKET_PAGE_SIZE));
+  const pagedBucketWords = bucketWords.slice(
+    bucketPage * BUCKET_PAGE_SIZE,
+    (bucketPage + 1) * BUCKET_PAGE_SIZE
+  );
+
+  function onMasteryBucketClick(item) {
+    setSelectedBucket((prev) => (prev === item.key ? null : item.key));
+    setBucketPage(0);
+  }
 
   const popularWords = useMemo(
     () => [...wordStats].sort((a, b) => b.students_saved - a.students_saved).slice(0, 12),
@@ -353,32 +390,23 @@ function TeacherAnalyticsPage() {
       <section className="dashboard-section">
         <div className="analytics-charts-grid">
 
-          {/* Most difficult words */}
+          {/* Most difficult words — mastery distribution histogram */}
           <div className="analytics-chart-block">
-            <h3 className="analytics-chart-title">Most Difficult Words</h3>
-            <p className="analytics-chart-caption">Sorted by lowest student mastery rate.</p>
-            {difficultWords.length === 0 ? (
+            <h3 className="analytics-chart-title">Word Mastery Distribution</h3>
+            <p className="analytics-chart-caption">How many words fall into each mastery range.</p>
+            {wordStats.length === 0 ? (
               <p className="analytics-chart-caption">No vocabulary data yet.</p>
             ) : (
               <>
                 <DashboardBarChart
-                  data={difficultWords.map(w => ({
-                    label:             w.selected_text,
-                    mastery_rate:      w.mastery_rate ?? 0,
-                    selected_text:     w.selected_text,
-                    reading_id:        w.reading_id,
-                    reading_title:     w.reading_title,
-                    students_saved:    w.students_saved,
-                    students_mastered: w.students_mastered,
-                  }))}
+                  data={masteryBucketData}
                   labelKey="label"
-                  valueKey="mastery_rate"
-                  unit="%"
+                  valueKey="count"
                   color="warning"
                   emptyMessage="No data."
-                  onBarClick={onWordBarClick}
+                  onBarClick={onMasteryBucketClick}
                 />
-                <p className="analytics-click-hint">Click a bar to see which students saved this word.</p>
+                <p className="analytics-click-hint">Click a range to see which words fall into it.</p>
               </>
             )}
           </div>
@@ -426,6 +454,92 @@ function TeacherAnalyticsPage() {
 
         </div>
       </section>
+
+      {/* ── Mastery bucket reveal (full width, not cramped in a 2-col chart block) ── */}
+      {selectedBucket && (
+        <section className="dashboard-section analytics-bucket-reveal">
+          <div className="word-detail-header">
+            <h4 className="word-detail-title">
+              {MASTERY_BUCKETS.find((b) => b.key === selectedBucket)?.label}
+              {' — '}{bucketWords.length} word{bucketWords.length !== 1 ? 's' : ''}
+            </h4>
+            <button
+              type="button"
+              className="word-detail-close"
+              onClick={() => setSelectedBucket(null)}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+
+          {bucketWords.length === 0 ? (
+            <p className="analytics-chart-caption">No words in this range.</p>
+          ) : (
+            <>
+              <div className="analytics-table-wrapper">
+                <table className="analytics-table">
+                  <thead>
+                    <tr>
+                      <th>Word</th>
+                      <th>Reading</th>
+                      <th>Folder</th>
+                      <th>{singleStudentMode ? 'Saved' : 'Students Saved'}</th>
+                      <th>Mastery %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagedBucketWords.map((w, i) => (
+                      <tr
+                        key={`${w.selected_text}-${w.reading_id}-${i}`}
+                        className="analytics-table-row--clickable"
+                        onClick={() => onWordBarClick(w)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onWordBarClick(w); }}
+                      >
+                        <td><strong>{w.selected_text}</strong></td>
+                        <td>{w.reading_title}</td>
+                        <td>{w.folder_name}</td>
+                        <td className="analytics-table-num">{w.students_saved}</td>
+                        <td>
+                          <span className={masteryBadgeClass(w.mastery_rate)}>
+                            {w.mastery_rate ?? 0}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalBucketPages > 1 && (
+                <div className="analytics-table-pagination">
+                  <button
+                    type="button"
+                    className="analytics-page-btn"
+                    onClick={() => setBucketPage((p) => Math.max(0, p - 1))}
+                    disabled={bucketPage === 0}
+                  >
+                    ◀
+                  </button>
+                  <span className="analytics-page-indicator">
+                    Page {bucketPage + 1} of {totalBucketPages}
+                  </span>
+                  <button
+                    type="button"
+                    className="analytics-page-btn"
+                    onClick={() => setBucketPage((p) => Math.min(totalBucketPages - 1, p + 1))}
+                    disabled={bucketPage >= totalBucketPages - 1}
+                  >
+                    ▶
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      )}
 
       {/* ── Charts row 2: Bloom + Most saved ─────────────────────  */}
       {!singleStudentMode && (

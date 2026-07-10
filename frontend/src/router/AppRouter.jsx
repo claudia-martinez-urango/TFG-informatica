@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "../components/layout/Navbar";
+import ThemeToggleButton from "../components/ui/ThemeToggleButton";
 import ProtectedRoute from "../auth/ProtectedRoute";
 
 import HomePage from "../pages/HomePage";
@@ -21,6 +22,7 @@ function AppRouter() {
   return (
     <BrowserRouter>
       <Navbar />
+      <ThemeToggleButton />
 
       <Routes>
         <Route path="/" element={<HomePage />} />
