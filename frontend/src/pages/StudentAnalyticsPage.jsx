@@ -11,6 +11,8 @@ import DashboardBarChart from '../components/dashboard/DashboardBarChart';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+const TERMS_PAGE_SIZE = 15;
+
 const BLOOM_LABELS = {
   remember:   'Remember',
   understand: 'Understand',
@@ -91,6 +93,7 @@ function StudentAnalyticsPage() {
   const [selectedReading,  setSelectedReading]  = useState('');
   const [summary,          setSummary]          = useState(null);
   const [terms,            setTerms]            = useState([]);
+  const [termsPage,        setTermsPage]        = useState(0);
   const [bloom,            setBloom]            = useState([]);
   const [loading,          setLoading]          = useState(true);
   const [dataLoading,      setDataLoading]      = useState(false);
@@ -136,6 +139,7 @@ function StudentAnalyticsPage() {
         ]);
         setSummary(summaryData);
         setTerms(termsData);
+        setTermsPage(0);
         setBloom(bloomData);
       } catch {
         // non-critical, fail silently
@@ -177,6 +181,13 @@ function StudentAnalyticsPage() {
   );
 
   const hasActiveFilter = selectedFolder || selectedSection || selectedReading;
+
+  // ── Terms table pagination (export always uses the full `terms` array) ──
+  const totalTermsPages = Math.max(1, Math.ceil(terms.length / TERMS_PAGE_SIZE));
+  const pagedTerms = terms.slice(
+    termsPage * TERMS_PAGE_SIZE,
+    (termsPage + 1) * TERMS_PAGE_SIZE
+  );
 
   function handleExportPdf() {
     const doc           = new jsPDF();
@@ -469,7 +480,7 @@ function StudentAnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {terms.map(t => (
+                {pagedTerms.map(t => (
                   <tr key={t.term_id}>
                     <td><strong>{t.selected_text}</strong></td>
                     <td className="analytics-table-def">{t.definition || '—'}</td>
@@ -490,6 +501,30 @@ function StudentAnalyticsPage() {
               </tbody>
             </table>
           </div>
+
+          {totalTermsPages > 1 && (
+            <div className="analytics-table-pagination">
+              <button
+                type="button"
+                className="analytics-page-btn"
+                onClick={() => setTermsPage(p => Math.max(0, p - 1))}
+                disabled={termsPage === 0}
+              >
+                ◀
+              </button>
+              <span className="analytics-page-indicator">
+                Page {termsPage + 1} of {totalTermsPages}
+              </span>
+              <button
+                type="button"
+                className="analytics-page-btn"
+                onClick={() => setTermsPage(p => Math.min(totalTermsPages - 1, p + 1))}
+                disabled={termsPage >= totalTermsPages - 1}
+              >
+                ▶
+              </button>
+            </div>
+          )}
         </section>
       )}
 

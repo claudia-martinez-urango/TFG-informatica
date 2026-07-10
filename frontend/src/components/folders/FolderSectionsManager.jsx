@@ -9,7 +9,7 @@ import {
 import ConfirmModal from "../ui/ConfirmModal";
 import SectionReadingsManager from "./SectionReadingsManager";
 
-function FolderSectionsManager({ folderId }) {
+function FolderSectionsManager({ folderId, autoOpenSectionId }) {
   const [sections, setSections] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
@@ -22,7 +22,9 @@ function FolderSectionsManager({ folderId }) {
   const [editingDescription, setEditingDescription] = useState("");
   const [editingOrder, setEditingOrder] = useState(0);
 
-  const [visibleReadingsSectionId, setVisibleReadingsSectionId] = useState(null);
+  const [visibleReadingsSectionId, setVisibleReadingsSectionId] = useState(
+    autoOpenSectionId || null
+  );
 
   const [sectionToDelete, setSectionToDelete] = useState(null);
 
@@ -42,6 +44,12 @@ function FolderSectionsManager({ folderId }) {
   useEffect(() => {
     loadSections();
   }, [folderId]);
+
+  useEffect(() => {
+    if (autoOpenSectionId) {
+      setVisibleReadingsSectionId(autoOpenSectionId);
+    }
+  }, [autoOpenSectionId]);
 
   async function handleCreateSection(event) {
     event.preventDefault();

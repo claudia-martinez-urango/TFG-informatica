@@ -25,7 +25,7 @@ function formatDate(dateStr) {
 }
 
 function StudentDashboardPage() {
-  const { profile } = useAuth();
+  const { profile, isFirstLogin } = useAuth();
 
   // ── Existing folder-tree state ───────────────────────────────
   const [folders,          setFolders]          = useState([]);
@@ -136,7 +136,7 @@ function StudentDashboardPage() {
       {/* ── Hero ─────────────────────────────────────────────── */}
       <div className="dashboard-hero">
         <div className="dashboard-hero-content">
-          <h2>Welcome, {profile?.first_name} {profile?.last_name}</h2>
+          <h2>{isFirstLogin ? 'Welcome' : 'Welcome back'}, {profile?.first_name} {profile?.last_name}</h2>
           <p>Continue learning from your readings, glossary and flashcards.</p>
         </div>
       </div>
@@ -160,129 +160,7 @@ function StudentDashboardPage() {
         </div>
       )}
 
-      {/* ── Stats grid ───────────────────────────────────────── */}
-      {!dashLoading && overview && (
-        <section className="dashboard-section">
-          <h2 className="dashboard-section-title">My Learning Overview</h2>
-          <div className="dashboard-stats-grid">
-            <DashboardStatCard label="My Folders"         value={overview.my_folders_count}         />
-            <DashboardStatCard label="Available Readings" value={overview.available_readings_count}  />
-            <DashboardStatCard label="My Glossary Terms"  value={overview.personal_terms_count}      />
-            <DashboardStatCard label="Mastered Terms"     value={overview.mastered_terms_count}      variant="success" />
-            <DashboardStatCard label="To Master"          value={overview.not_mastered_terms_count}  variant={overview.not_mastered_terms_count > 0 ? 'warning' : undefined} />
-            <DashboardStatCard
-              label="Flashcards Due Today"
-              value={overview.due_flashcards_count}
-              variant={overview.due_flashcards_count > 0 ? 'warning' : undefined}
-            />
-            <DashboardStatCard label="Upcoming Flashcards" value={overview.upcoming_flashcards_count} />
-            <DashboardStatCard label="Reviewed Today"     value={overview.reviewed_today_count}      variant="success" />
-            <DashboardStatCard label="Bloom Activities"   value={overview.bloom_answers_count}       />
-          </div>
-        </section>
-      )}
-
-      {/* ── Recommendation ───────────────────────────────────── */}
-      {!dashLoading && recommendation && (
-        <section className="dashboard-section">
-          <StudentRecommendationCard recommendation={recommendation} />
-        </section>
-      )}
-
-      {/* ── Progress ─────────────────────────────────────────── */}
-      {!dashLoading && overview && (
-        <section className="dashboard-section">
-          <h2 className="dashboard-section-title">My Progress</h2>
-          <StudentProgressPanel
-            totalTerms={overview.personal_terms_count}
-            masteredTerms={overview.mastered_terms_count}
-            reviewedToday={overview.reviewed_today_count}
-            dueToday={overview.due_flashcards_count + overview.reviewed_today_count}
-          />
-        </section>
-      )}
-
-      {/* ── Continue learning ────────────────────────────────── */}
-      {!dashLoading && (recentReadings.length > 0 || recentTerms.length > 0) && (
-        <section className="dashboard-section">
-          <h2 className="dashboard-section-title">Continue Learning</h2>
-          <div className="continue-learning-grid">
-
-            {/* Recent readings */}
-            {recentReadings.length > 0 && (
-              <div className="continue-learning-block">
-                <h3 className="continue-learning-subtitle">Recent Readings</h3>
-                <div className="continue-learning-list">
-                  {recentReadings.map((reading) => (
-                    <div key={reading.reading_id} className="continue-learning-item">
-                      <div className="continue-learning-item-info">
-                        <span className="continue-learning-item-title">
-                          {reading.reading_title}
-                        </span>
-                        <span className="continue-learning-item-meta">
-                          {reading.folder_name} › {reading.section_name}
-                        </span>
-                      </div>
-                      <Link
-                        to={`/reading/${reading.reading_id}`}
-                        className="continue-learning-btn"
-                      >
-                        Open
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recent personal terms */}
-            {recentTerms.length > 0 && (
-              <div className="continue-learning-block">
-                <h3 className="continue-learning-subtitle">Recently Added Terms</h3>
-                <div className="continue-learning-list">
-                  {recentTerms.map((term) => (
-                    <div key={term.term_id} className="continue-learning-item">
-                      <div className="continue-learning-item-info">
-                        <span className="continue-learning-item-title">
-                          {term.selected_text}
-                        </span>
-                        <span className="continue-learning-item-meta">
-                          {term.reading_title} · {formatDate(term.created_at)}
-                          {term.is_mastered && (
-                            <span className="badge badge--success" style={{ marginLeft: '6px' }}>
-                              Mastered
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                      <Link
-                        to={`/reading/${term.reading_id}`}
-                        className="continue-learning-btn"
-                      >
-                        Review
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-          </div>
-        </section>
-      )}
-
-      {/* ── My analytics ─────────────────────────────────────── */}
-      {!dashLoading && overview && overview.personal_terms_count > 0 && (
-        <section className="dashboard-section">
-          <h2 className="dashboard-section-title">My Learning Analytics</h2>
-          <p className="analytics-caption" style={{ marginBottom: '16px' }}>
-            Track which folders you have mastered and which need more practice.
-          </p>
-          <StudentAnalyticsPanel />
-        </section>
-      )}
-
-      {/* ── My folders (existing functionality preserved) ─────── */}
+      {/* ── My folders (moved up so students reach it without scrolling) */}
       <section className="section">
         <div className="folder-list-header">
           <h2>My Folders</h2>
@@ -444,6 +322,128 @@ function StudentDashboardPage() {
           </div>
         )}
       </section>
+
+      {/* ── Stats grid ───────────────────────────────────────── */}
+      {!dashLoading && overview && (
+        <section className="dashboard-section">
+          <h2 className="dashboard-section-title">My Learning Overview</h2>
+          <div className="dashboard-stats-grid">
+            <DashboardStatCard label="My Folders"         value={overview.my_folders_count}         />
+            <DashboardStatCard label="Available Readings" value={overview.available_readings_count}  />
+            <DashboardStatCard label="My Glossary Terms"  value={overview.personal_terms_count}      />
+            <DashboardStatCard label="Mastered Terms"     value={overview.mastered_terms_count}      variant="success" />
+            <DashboardStatCard label="To Master"          value={overview.not_mastered_terms_count}  variant={overview.not_mastered_terms_count > 0 ? 'warning' : undefined} />
+            <DashboardStatCard
+              label="Flashcards Due Today"
+              value={overview.due_flashcards_count}
+              variant={overview.due_flashcards_count > 0 ? 'warning' : undefined}
+            />
+            <DashboardStatCard label="Upcoming Flashcards" value={overview.upcoming_flashcards_count} />
+            <DashboardStatCard label="Reviewed Today"     value={overview.reviewed_today_count}      variant="success" />
+            <DashboardStatCard label="Bloom Activities"   value={overview.bloom_answers_count}       />
+          </div>
+        </section>
+      )}
+
+      {/* ── Recommendation ───────────────────────────────────── */}
+      {!dashLoading && recommendation && (
+        <section className="dashboard-section">
+          <StudentRecommendationCard recommendation={recommendation} />
+        </section>
+      )}
+
+      {/* ── Progress ─────────────────────────────────────────── */}
+      {!dashLoading && overview && (
+        <section className="dashboard-section">
+          <h2 className="dashboard-section-title">My Progress</h2>
+          <StudentProgressPanel
+            totalTerms={overview.personal_terms_count}
+            masteredTerms={overview.mastered_terms_count}
+            reviewedToday={overview.reviewed_today_count}
+            dueToday={overview.due_flashcards_count + overview.reviewed_today_count}
+          />
+        </section>
+      )}
+
+      {/* ── Continue learning ────────────────────────────────── */}
+      {!dashLoading && (recentReadings.length > 0 || recentTerms.length > 0) && (
+        <section className="dashboard-section">
+          <h2 className="dashboard-section-title">Continue Learning</h2>
+          <div className="continue-learning-grid">
+
+            {/* Recent readings */}
+            {recentReadings.length > 0 && (
+              <div className="continue-learning-block">
+                <h3 className="continue-learning-subtitle">Recent Readings</h3>
+                <div className="continue-learning-list">
+                  {recentReadings.map((reading) => (
+                    <div key={reading.reading_id} className="continue-learning-item">
+                      <div className="continue-learning-item-info">
+                        <span className="continue-learning-item-title">
+                          {reading.reading_title}
+                        </span>
+                        <span className="continue-learning-item-meta">
+                          {reading.folder_name} › {reading.section_name}
+                        </span>
+                      </div>
+                      <Link
+                        to={`/reading/${reading.reading_id}`}
+                        className="continue-learning-btn"
+                      >
+                        Open
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recent personal terms */}
+            {recentTerms.length > 0 && (
+              <div className="continue-learning-block">
+                <h3 className="continue-learning-subtitle">Recently Added Terms</h3>
+                <div className="continue-learning-list">
+                  {recentTerms.map((term) => (
+                    <div key={term.term_id} className="continue-learning-item">
+                      <div className="continue-learning-item-info">
+                        <span className="continue-learning-item-title">
+                          {term.selected_text}
+                        </span>
+                        <span className="continue-learning-item-meta">
+                          {term.reading_title} · {formatDate(term.created_at)}
+                          {term.is_mastered && (
+                            <span className="badge badge--success" style={{ marginLeft: '6px' }}>
+                              Mastered
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <Link
+                        to={`/reading/${term.reading_id}`}
+                        className="continue-learning-btn"
+                      >
+                        Review
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        </section>
+      )}
+
+      {/* ── My analytics ─────────────────────────────────────── */}
+      {!dashLoading && overview && overview.personal_terms_count > 0 && (
+        <section className="dashboard-section">
+          <h2 className="dashboard-section-title">My Learning Analytics</h2>
+          <p className="analytics-caption" style={{ marginBottom: '16px' }}>
+            Track which folders you have mastered and which need more practice.
+          </p>
+          <StudentAnalyticsPanel />
+        </section>
+      )}
     </main>
   );
 }

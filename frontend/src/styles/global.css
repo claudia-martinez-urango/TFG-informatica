@@ -31,6 +31,63 @@
   --radius-lg: 14px;
   --radius-xl: 20px;
   --radius-full: 9999px;
+
+  --success-text: #065f46;
+  --warning-text: #92400e;
+  --error-text:   #991b1b;
+}
+
+/* ===== DARK THEME OVERRIDES ===== */
+:root[data-theme="dark"] {
+  --primary-light: #312E81;
+  --primary-dark: #A5B4FC;
+
+  --success-light: #064E3B;
+  --error-light: #7F1D1D;
+  --warning-light: #78350F;
+
+  --bg: #0B1120;
+  --surface: #131B2E;
+  --surface-alt: #1B2438;
+  --border: #2A3550;
+  --border-hover: #3A4770;
+
+  --text: #E5E9F5;
+  --text-muted: #9AA5C0;
+  --text-light: #6B7694;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.24);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  --success-text: #6EE7B7;
+  --warning-text: #FCD34D;
+  --error-text:   #FCA5A5;
+}
+
+/* ===== THEME TOGGLE BUTTON ===== */
+.theme-toggle-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.06);
+  background: var(--surface-alt);
 }
 
 /* ===== RESET & BASE ===== */
@@ -118,7 +175,7 @@ body {
 
 .logout-button:hover {
   background-color: var(--error-light);
-  color: #B91C1C;
+  color: var(--error-text);
   border-color: #FCA5A5;
   transform: none;
   box-shadow: none;
@@ -278,7 +335,7 @@ button:disabled {
   margin-top: 16px;
   padding: 12px 16px;
   background-color: var(--success-light);
-  color: #065F46;
+  color: var(--success-text);
   font-weight: 500;
   font-size: 15px;
   border-radius: var(--radius);
@@ -292,7 +349,7 @@ button:disabled {
   margin-top: 16px;
   padding: 12px 16px;
   background-color: var(--error-light);
-  color: #991B1B;
+  color: var(--error-text);
   font-weight: 500;
   font-size: 15px;
   border-radius: var(--radius);
@@ -505,6 +562,13 @@ button:disabled {
 
 .folder-list-header h2 {
   margin: 0;
+}
+
+.folder-list-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .folder-search-input {
@@ -743,13 +807,13 @@ button:disabled {
 
 .published-badge {
   background-color: var(--success-light);
-  color: #065F46;
+  color: var(--success-text);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .hidden-badge {
   background-color: var(--warning-light);
-  color: #92400E;
+  color: var(--warning-text);
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
@@ -2219,7 +2283,7 @@ button:disabled {
   letter-spacing: 0.4px;
   text-transform: uppercase;
   background-color: var(--success-light);
-  color: #065F46;
+  color: var(--success-text);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
@@ -2419,7 +2483,7 @@ button:disabled {
 .reading-term-panel-mastered-block p {
   margin: 0;
   font-size: 14px;
-  color: #065F46;
+  color: var(--success-text);
   font-weight: 600;
   line-height: 1.5;
 }
@@ -2580,12 +2644,13 @@ button:disabled {
 
 .translation-toggle-on {
   background-color: var(--success-light);
-  color: #065F46;
+  color: var(--success-text);
   border-color: rgba(16, 185, 129, 0.4);
 }
 
 .translation-toggle-on:hover:not(:disabled) {
   background-color: #D1FAE5;
+  color: #065F46;
 }
 
 .translation-toggle-off {
@@ -3107,32 +3172,35 @@ button:disabled {
 
 .rating-again {
   background: var(--error-light);
-  color: #b91c1c;
+  color: var(--error-text);
   border: 1px solid #fca5a5;
 }
 
 .rating-again:hover:not(:disabled) {
   background: #fca5a5;
+  color: #b91c1c;
 }
 
 .rating-hard {
   background: var(--warning-light);
-  color: #92400e;
+  color: var(--warning-text);
   border: 1px solid #fcd34d;
 }
 
 .rating-hard:hover:not(:disabled) {
   background: #fcd34d;
+  color: #92400e;
 }
 
 .rating-good {
   background: var(--success-light);
-  color: #065f46;
+  color: var(--success-text);
   border: 1px solid #6ee7b7;
 }
 
 .rating-good:hover:not(:disabled) {
   background: #6ee7b7;
+  color: #065f46;
 }
 
 .rating-easy {
@@ -3143,6 +3211,7 @@ button:disabled {
 
 .rating-easy:hover:not(:disabled) {
   background: #a5b4fc;
+  color: #3730a3;
 }
 
 /* ── Upcoming cards list ─────────────────────────────────────────── */
@@ -3232,7 +3301,7 @@ button:disabled {
   padding: 2px 8px;
   border-radius: var(--radius-full);
   background: var(--error-light);
-  color: #b91c1c;
+  color: var(--error-text);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -3302,7 +3371,7 @@ button:disabled {
   border: 1px solid #fcd34d;
   border-radius: var(--radius);
   font-size: 15px;
-  color: #92400e;
+  color: var(--warning-text);
   font-weight: 500;
 }
 
@@ -3539,13 +3608,13 @@ button:disabled {
 .mc-option--correct {
   border-color: var(--success);
   background: var(--success-light);
-  color: #065f46;
+  color: var(--success-text);
 }
 
 .mc-option--wrong {
   border-color: var(--error);
   background: var(--error-light);
-  color: #b91c1c;
+  color: var(--error-text);
   text-decoration: line-through;
 }
 
@@ -3896,9 +3965,9 @@ button:disabled {
   white-space: nowrap;
 }
 
-.badge--success { background: var(--success-light); color: #065f46; }
-.badge--warning { background: var(--warning-light); color: #92400e; }
-.badge--error   { background: var(--error-light);   color: #991b1b; }
+.badge--success { background: var(--success-light); color: var(--success-text); }
+.badge--warning { background: var(--warning-light); color: var(--warning-text); }
+.badge--error   { background: var(--error-light);   color: var(--error-text); }
 .badge--primary { background: var(--primary-light); color: var(--primary-dark); }
 .badge--info    { background: #e0f2fe;               color: #0c4a6e; }
 .badge--muted   { background: var(--surface-alt);   color: var(--text-muted); }
@@ -4472,7 +4541,7 @@ button:disabled {
 
 .quick-panel-approve {
   background: var(--success-light);
-  color: #065f46;
+  color: var(--success-text);
   border-color: var(--success);
 }
 .quick-panel-approve:hover {
@@ -4482,7 +4551,7 @@ button:disabled {
 
 .quick-panel-reject {
   background: var(--error-light);
-  color: #991b1b;
+  color: var(--error-text);
   border-color: var(--error);
 }
 .quick-panel-reject:hover {
@@ -4645,6 +4714,26 @@ button:disabled {
   white-space: nowrap;
 }
 
+.bar-chart-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.bar-chart-tooltip strong {
+  color: var(--text);
+}
+
+.bar-chart-tooltip span {
+  color: var(--text-muted);
+}
+
 /* ── Analytics table (Difficult Terms) ───────────────────────────── */
 .analytics-table-wrapper {
   overflow-x: auto;
@@ -4707,9 +4796,9 @@ button:disabled {
 }
 
 .analytics-mastery-badge--none   { background: var(--surface-alt); color: var(--text-muted); }
-.analytics-mastery-badge--low    { background: var(--error-light);  color: #991b1b; }
-.analytics-mastery-badge--medium { background: var(--warning-light); color: #92400e; }
-.analytics-mastery-badge--high   { background: var(--success-light); color: #065f46; }
+.analytics-mastery-badge--low    { background: var(--error-light);  color: var(--error-text); }
+.analytics-mastery-badge--medium { background: var(--warning-light); color: var(--warning-text); }
+.analytics-mastery-badge--high   { background: var(--success-light); color: var(--success-text); }
 
 /* ── Student analytics two-column grid ───────────────────────────── */
 .analytics-student-grid {
@@ -5011,6 +5100,41 @@ button:disabled {
   color: var(--text-muted);
 }
 
+.analytics-table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.analytics-page-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.analytics-page-btn:hover:not(:disabled) {
+  background: var(--surface-alt);
+  border-color: var(--border-hover);
+}
+
+.analytics-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.analytics-page-indicator {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
 .analytics-table-num {
   text-align: center;
   font-weight: 600;
@@ -5113,6 +5237,16 @@ button:disabled {
   background: var(--error-light);
   color: var(--error);
   border-color: var(--error);
+}
+
+/* ── Mastery bucket reveal (click a histogram bar) ──────────── */
+.analytics-bucket-reveal {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+  animation: fadeInDown 0.18s ease;
 }
 
 /* ── Clickable word stats table rows ────────────────────────── */
